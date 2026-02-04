@@ -5,6 +5,7 @@ export type Ingredient = {
   name: string;
   baseUnit: BaseUnit;
   pricePerBaseUnit: number;
+  priceUpdatedAt?: string;
 };
 
 export type SubRecipeItem = {
