@@ -34,3 +34,14 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## PWA Cache Notes (Dev)
+
+This project registers a service worker (`public/sw.js`) with versioned caches.
+
+- When changing visual assets or caching logic, bump `SW_VERSION` in `public/sw.js`.
+- If your browser keeps showing stale UI during local development:
+  1. Open DevTools `Application` tab.
+  2. Go to `Service Workers` and unregister current worker.
+  3. Go to `Storage` and clear site data.
+  4. Reload the app.
