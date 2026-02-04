@@ -51,6 +51,7 @@ export function InvoiceUploadView() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [pendingOverwrite, setPendingOverwrite] = useState<Ingredient[]>([]);
 
   useEffect(() => {
     return () => {
@@ -129,6 +130,7 @@ export function InvoiceUploadView() {
     setParseError(null);
     setSaveMessage(null);
     setSaveError(null);
+    setPendingOverwrite([]);
   }
 
   async function handleParseDraft() {
@@ -164,6 +166,7 @@ export function InvoiceUploadView() {
       setParseRequestedAt(new Date().toISOString());
       setSaveMessage(null);
       setSaveError(null);
+      setPendingOverwrite([]);
     } catch (error) {
       setParseResult(null);
       setCorrectedItems([]);
@@ -173,6 +176,7 @@ export function InvoiceUploadView() {
           ? error.message
           : "Error inesperado en el parseo de factura."
       );
+      setPendingOverwrite([]);
     } finally {
       setIsParsing(false);
     }
@@ -213,15 +217,24 @@ export function InvoiceUploadView() {
     setIsSaving(true);
     setSaveMessage(null);
     setSaveError(null);
+    setPendingOverwrite([]);
 
     try {
-      const itemsToUpsert = buildIngredientsForSave(
+      const result = buildIngredientsForSave(
         parsedItems,
         ingredientSelections,
         ingredientOptions
       );
 
-      const savedCount = await appServices.saveIngredientCatalog(itemsToUpsert);
+      if (result.overwrites.length > 0) {
+        setPendingOverwrite(result.overwrites);
+        setIsSaving(false);
+        return;
+      }
+
+      const savedCount = await appServices.saveIngredientCatalog(
+        result.ingredients
+      );
       setSaveMessage(`Catalogo actualizado (${savedCount} ingredientes).`);
     } catch (error) {
       setSaveError(
@@ -232,6 +245,40 @@ export function InvoiceUploadView() {
     } finally {
       setIsSaving(false);
     }
+  }
+
+  async function handleConfirmOverwrite() {
+    if (pendingOverwrite.length === 0) return;
+
+    setIsSaving(true);
+    setSaveMessage(null);
+    setSaveError(null);
+
+    try {
+      const result = buildIngredientsForSave(
+        parsedItems,
+        ingredientSelections,
+        ingredientOptions,
+        true
+      );
+      const savedCount = await appServices.saveIngredientCatalog(
+        result.ingredients
+      );
+      setSaveMessage(`Catalogo actualizado (${savedCount} ingredientes).`);
+      setPendingOverwrite([]);
+    } catch (error) {
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : "No se pudo guardar el catalogo."
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  function handleCancelOverwrite() {
+    setPendingOverwrite([]);
   }
 
   return (
@@ -376,6 +423,9 @@ export function InvoiceUploadView() {
         isSaving={isSaving}
         saveMessage={saveMessage}
         saveError={saveError}
+        pendingOverwrite={pendingOverwrite}
+        onConfirmOverwrite={handleConfirmOverwrite}
+        onCancelOverwrite={handleCancelOverwrite}
       />
     </div>
   );
@@ -467,9 +517,11 @@ function suggestIngredientName(raw: string, options: Ingredient[]) {
 function buildIngredientsForSave(
   items: ParseInvoiceItem[],
   ingredientSelections: string[],
-  ingredientOptions: Ingredient[]
-): Ingredient[] {
-  return items.map((item, index) => {
+  ingredientOptions: Ingredient[],
+  allowOverwrite = false
+): { ingredients: Ingredient[]; overwrites: Ingredient[] } {
+  const overwrites: Ingredient[] = [];
+  const ingredients = items.map((item, index) => {
     const selection = ingredientSelections[index].trim();
     const normalized = normalizeName(selection);
     const existing = ingredientOptions.find(
@@ -496,6 +548,10 @@ function buildIngredientsForSave(
         );
       }
 
+      if (!allowOverwrite) {
+        overwrites.push(existing);
+      }
+
       return {
         ...existing,
         pricePerBaseUnit,
@@ -519,6 +575,8 @@ function buildIngredientsForSave(
       purchaseUnitCost,
     };
   });
+
+  return { ingredients, overwrites };
 }
 
 function createId() {

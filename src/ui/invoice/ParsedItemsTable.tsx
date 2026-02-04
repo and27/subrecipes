@@ -1,4 +1,5 @@
 import type { ParseInvoiceItem } from "@/domain/invoice-parse";
+import type { Ingredient } from "@/domain/models";
 import { toBaseQuantity, type Unit } from "@/domain/units";
 import {
   Card,
@@ -25,6 +26,9 @@ type ParsedItemsTableProps = {
   isSaving: boolean;
   saveMessage: string | null;
   saveError: string | null;
+  pendingOverwrite: Ingredient[];
+  onConfirmOverwrite: () => void;
+  onCancelOverwrite: () => void;
 };
 
 function formatConfidence(value: number | undefined) {
@@ -48,6 +52,9 @@ export function ParsedItemsTable({
   isSaving,
   saveMessage,
   saveError,
+  pendingOverwrite,
+  onConfirmOverwrite,
+  onCancelOverwrite,
 }: ParsedItemsTableProps) {
   return (
     <Card className="lg:col-span-2">
@@ -72,6 +79,26 @@ export function ParsedItemsTable({
         {error && <p className="text-sm text-danger">{error}</p>}
         {saveMessage && <p className="text-sm text-success">{saveMessage}</p>}
         {saveError && <p className="text-sm text-danger">{saveError}</p>}
+        {pendingOverwrite.length > 0 && (
+          <div className="rounded-2xl border border-warning/40 bg-warning/10 px-4 py-3 text-xs text-warning">
+            <p className="font-semibold text-warning">
+              Se detectaron ingredientes existentes:
+            </p>
+            <ul className="mt-2 list-disc pl-4">
+              {pendingOverwrite.map((item) => (
+                <li key={item.id}>{item.name}</li>
+              ))}
+            </ul>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button onClick={onConfirmOverwrite} size="sm">
+                Actualizar precios
+              </Button>
+              <Button onClick={onCancelOverwrite} size="sm" variant="outline">
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        )}
 
         {!isLoading && !error && items.length === 0 && (
           <p className="text-sm text-muted">Aun no hay items detectados.</p>
