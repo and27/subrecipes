@@ -21,23 +21,23 @@ Subo una factura, corrijo rápidamente ítems y unidades, obtengo **$/unidad bas
 
 ### EPIC 0 — Fundaciones mínimas
 
-- [ ] Project scaffold (Next + TS + Tailwind + shadcn + PWA basics)
-- [ ] Define base units config + conversion helpers
-- [ ] Define ports (interfaces) + composition root mínimo
+- [x] Project scaffold (Next + TS + Tailwind + shadcn + PWA basics)
+- [x] Define base units config + conversion helpers
+- [x] Define ports (interfaces) + composition root mínimo
 
 ### EPIC 1 — App shell multipágina (navegación base)
 
-- [ ] Layout general con sidebar persistente
-- [ ] Rutas separadas: `/ingredientes`, `/subrecetas`, `/recetas`
-- [ ] Vista de ingredientes en tabla (lectura inicial)
-- [ ] Vistas de subrecetas y recetas en formato lista (lectura inicial)
+- [x] Layout general con sidebar persistente
+- [x] Rutas separadas: `/ingredientes`, `/subrecetas`, `/recetas`
+- [x] Vista de ingredientes en tabla (lectura inicial)
+- [x] Vistas de subrecetas y recetas en formato lista (lectura inicial)
 
 ### EPIC 2 — Ingesta de factura (imagen → texto → items)
 
-- [ ] UI: subir imagen + preview + crear invoice draft
-- [ ] Endpoint: imagen → texto (visión/OCR) + flag de baja calidad
-- [ ] LLM: texto → JSON items (schema mínimo)
-- [ ] UI: mostrar tabla inicial de items detectados
+- [x] UI: subir imagen + preview + crear invoice draft
+- [x] Endpoint: imagen → texto (visión/OCR) + flag de baja calidad (mock)
+- [x] LLM: texto → JSON items (schema mínimo) (mock)
+- [x] UI: mostrar tabla inicial de items detectados
 
 ### EPIC 3 — Corrección + normalización a unidad base
 
@@ -48,9 +48,9 @@ Subo una factura, corrijo rápidamente ítems y unidades, obtengo **$/unidad bas
 
 ### EPIC 4 — Persistencia offline (Dexie / IndexedDB)
 
-- [ ] Definir schema Dexie (tablas + índices)
-- [ ] Implementar adapters Dexie para repositorios (ports)
-- [ ] Persistencia/hidratación al reload (offline real)
+- [x] Definir schema Dexie (tablas + índices)
+- [x] Implementar adapters Dexie para repositorios (ports)
+- [x] Persistencia/hidratación al reload (offline real)
 
 ### EPIC 5 — Subrecetas (nivel 1)
 
