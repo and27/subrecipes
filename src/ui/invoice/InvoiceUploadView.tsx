@@ -291,18 +291,6 @@ export function InvoiceUploadView() {
             {isParsing ? "Procesando factura..." : "Ejecutar parseo mock"}
           </Button>
 
-          <Button
-            onClick={handleSaveCatalog}
-            disabled={!canSave}
-            variant="outline"
-            className="w-full sm:w-auto"
-          >
-            {isSaving ? "Guardando en catalogo..." : "Guardar en catalogo"}
-          </Button>
-
-          {saveMessage && <p className="text-sm text-success">{saveMessage}</p>}
-          {saveError && <p className="text-sm text-danger">{saveError}</p>}
-
         </CardContent>
       </Card>
 
@@ -383,6 +371,11 @@ export function InvoiceUploadView() {
         ingredientSelections={ingredientSelections}
         ingredientMatches={ingredientMatches}
         onIngredientChange={handleIngredientChange}
+        onSave={handleSaveCatalog}
+        canSave={canSave}
+        isSaving={isSaving}
+        saveMessage={saveMessage}
+        saveError={saveError}
       />
     </div>
   );
