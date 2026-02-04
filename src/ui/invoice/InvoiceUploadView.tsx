@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 import {
+  type ParseInvoiceItem,
   parseInvoiceResponse,
   type ParseInvoiceResponse,
 } from "@/domain/invoice-parse";
@@ -39,6 +40,7 @@ export function InvoiceUploadView() {
   const [draftCreatedAt, setDraftCreatedAt] = useState<string | null>(null);
   const [isParsing, setIsParsing] = useState(false);
   const [parseResult, setParseResult] = useState<ParseInvoiceResponse | null>(null);
+  const [correctedItems, setCorrectedItems] = useState<ParseInvoiceItem[]>([]);
   const [parseError, setParseError] = useState<string | null>(null);
   const [parseRequestedAt, setParseRequestedAt] = useState<string | null>(null);
 
@@ -75,7 +77,9 @@ export function InvoiceUploadView() {
     return { label: "Parseo completado", className: "text-success" };
   }, [isParsing, parseResult]);
 
-  const parsedItems = parseResult?.items ?? [];
+  const parsedItems = correctedItems;
+  const rowErrors = useMemo(() => validateItems(parsedItems), [parsedItems]);
+  const validItemsCount = parsedItems.length - Object.keys(rowErrors).length;
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const nextFile = event.target.files?.[0] ?? null;
@@ -85,6 +89,7 @@ export function InvoiceUploadView() {
     setDraftCreatedAt(nextFile ? new Date().toISOString() : null);
     setParseRequestedAt(null);
     setParseResult(null);
+    setCorrectedItems([]);
     setParseError(null);
   }
 
@@ -112,9 +117,11 @@ export function InvoiceUploadView() {
 
       const data = parseInvoiceResponse(await response.json());
       setParseResult(data);
+      setCorrectedItems(data.items);
       setParseRequestedAt(new Date().toISOString());
     } catch (error) {
       setParseResult(null);
+      setCorrectedItems([]);
       setParseError(
         error instanceof Error
           ? error.message
@@ -123,6 +130,14 @@ export function InvoiceUploadView() {
     } finally {
       setIsParsing(false);
     }
+  }
+
+  function handleItemChange(index: number, nextItem: ParseInvoiceItem) {
+    setCorrectedItems((previous) =>
+      previous.map((item, itemIndex) =>
+        itemIndex === index ? nextItem : item
+      )
+    );
   }
 
   return (
@@ -231,6 +246,13 @@ export function InvoiceUploadView() {
             </span>
           </div>
 
+          <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
+            <span className="text-muted">Items validos</span>
+            <span className="font-medium text-text">
+              {parsedItems.length > 0 ? `${validItemsCount}/${parsedItems.length}` : "-"}
+            </span>
+          </div>
+
           {parseResult?.warnings.length ? (
             <div className="rounded-xl border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-warning">
               {parseResult.warnings[0]}
@@ -249,7 +271,37 @@ export function InvoiceUploadView() {
         isLoading={isParsing}
         error={parseError}
         lowConfidence={parseResult?.low_confidence ?? false}
+        rowErrors={rowErrors}
+        onItemChange={handleItemChange}
       />
     </div>
   );
+}
+
+function validateItems(items: ParseInvoiceItem[]): Record<number, string[]> {
+  return items.reduce<Record<number, string[]>>((acc, item, index) => {
+    const errors: string[] = [];
+
+    if (item.raw_description.trim() === "") {
+      errors.push("Descripcion vacia");
+    }
+
+    if (!Number.isFinite(item.line_total) || item.line_total <= 0) {
+      errors.push("Total invalido");
+    }
+
+    if (item.qty !== undefined && (!Number.isFinite(item.qty) || item.qty <= 0)) {
+      errors.push("Cantidad invalida");
+    }
+
+    if (item.qty !== undefined && (!item.unit || item.unit.trim() === "")) {
+      errors.push("Falta unidad");
+    }
+
+    if (errors.length > 0) {
+      acc[index] = errors;
+    }
+
+    return acc;
+  }, {});
 }
