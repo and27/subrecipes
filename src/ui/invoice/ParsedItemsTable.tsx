@@ -12,6 +12,8 @@ type ParsedItemsTableProps = {
   isLoading: boolean;
   error: string | null;
   lowConfidence: boolean;
+  rowErrors: Record<number, string[]>;
+  onItemChange: (index: number, nextItem: ParseInvoiceItem) => void;
 };
 
 function formatConfidence(value: number | undefined) {
@@ -24,6 +26,8 @@ export function ParsedItemsTable({
   isLoading,
   error,
   lowConfidence,
+  rowErrors,
+  onItemChange,
 }: ParsedItemsTableProps) {
   return (
     <Card className="lg:col-span-2">
@@ -60,6 +64,7 @@ export function ParsedItemsTable({
                   <th className="px-4 py-3 font-medium">Unidad</th>
                   <th className="px-4 py-3 font-medium">Total</th>
                   <th className="px-4 py-3 font-medium">Confianza</th>
+                  <th className="px-4 py-3 font-medium">Validacion</th>
                 </tr>
               </thead>
               <tbody>
@@ -68,12 +73,79 @@ export function ParsedItemsTable({
                     key={`${item.raw_description}-${index}`}
                     className="border-t border-border"
                   >
-                    <td className="px-4 py-3 text-text">{item.raw_description}</td>
-                    <td className="px-4 py-3 text-muted">{item.qty ?? "-"}</td>
-                    <td className="px-4 py-3 text-muted">{item.unit ?? "-"}</td>
-                    <td className="px-4 py-3 text-muted">{item.line_total}</td>
+                    <td className="px-4 py-3 text-text">
+                      <input
+                        value={item.raw_description}
+                        onChange={(event) =>
+                          onItemChange(index, {
+                            ...item,
+                            raw_description: event.target.value,
+                          })
+                        }
+                        className="w-full rounded-lg border border-border bg-surface-alt px-2 py-1 text-sm text-text"
+                      />
+                    </td>
+                    <td className="px-4 py-3 text-muted">
+                      <input
+                        type="number"
+                        min="0"
+                        step="any"
+                        value={item.qty ?? ""}
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          onItemChange(index, {
+                            ...item,
+                            qty: value === "" ? undefined : Number(value),
+                          });
+                        }}
+                        className="w-24 rounded-lg border border-border bg-surface-alt px-2 py-1 text-sm text-text"
+                      />
+                    </td>
+                    <td className="px-4 py-3 text-muted">
+                      <select
+                        value={item.unit ?? ""}
+                        onChange={(event) =>
+                          onItemChange(index, {
+                            ...item,
+                            unit: event.target.value || undefined,
+                          })
+                        }
+                        className="w-24 rounded-lg border border-border bg-surface-alt px-2 py-1 text-sm text-text"
+                      >
+                        <option value="">-</option>
+                        <option value="g">g</option>
+                        <option value="kg">kg</option>
+                        <option value="ml">ml</option>
+                        <option value="l">l</option>
+                        <option value="unit">unit</option>
+                      </select>
+                    </td>
+                    <td className="px-4 py-3 text-muted">
+                      <input
+                        type="number"
+                        min="0"
+                        step="any"
+                        value={item.line_total}
+                        onChange={(event) =>
+                          onItemChange(index, {
+                            ...item,
+                            line_total: Number(event.target.value || 0),
+                          })
+                        }
+                        className="w-28 rounded-lg border border-border bg-surface-alt px-2 py-1 text-sm text-text"
+                      />
+                    </td>
                     <td className="px-4 py-3 text-muted">
                       {formatConfidence(item.confidence)}
+                    </td>
+                    <td className="px-4 py-3">
+                      {rowErrors[index]?.length ? (
+                        <span className="text-xs text-danger">
+                          {rowErrors[index][0]}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-success">OK</span>
+                      )}
                     </td>
                   </tr>
                 ))}
