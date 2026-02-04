@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/ui/components/ui/card";
+import { Button } from "@/ui/components/ui/button";
 
 type ParsedItemsTableProps = {
   items: ParseInvoiceItem[];
@@ -19,6 +20,11 @@ type ParsedItemsTableProps = {
   ingredientSelections: string[];
   ingredientMatches: boolean[];
   onIngredientChange: (index: number, nextName: string) => void;
+  onSave: () => void;
+  canSave: boolean;
+  isSaving: boolean;
+  saveMessage: string | null;
+  saveError: string | null;
 };
 
 function formatConfidence(value: number | undefined) {
@@ -37,14 +43,26 @@ export function ParsedItemsTable({
   ingredientSelections,
   ingredientMatches,
   onIngredientChange,
+  onSave,
+  canSave,
+  isSaving,
+  saveMessage,
+  saveError,
 }: ParsedItemsTableProps) {
   return (
     <Card className="lg:col-span-2">
       <CardHeader>
-        <CardTitle>Items detectados (mock)</CardTitle>
-        <CardDescription>
-          Resultado preliminar para pasar luego a correccion manual.
-        </CardDescription>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <CardTitle>Items detectados (mock)</CardTitle>
+            <CardDescription>
+              Resultado preliminar para pasar luego a correccion manual.
+            </CardDescription>
+          </div>
+          <Button onClick={onSave} disabled={!canSave} size="sm" variant="outline">
+            {isSaving ? "Guardando..." : "Guardar en catalogo"}
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-3">
         {isLoading && (
@@ -52,6 +70,8 @@ export function ParsedItemsTable({
         )}
 
         {error && <p className="text-sm text-danger">{error}</p>}
+        {saveMessage && <p className="text-sm text-success">{saveMessage}</p>}
+        {saveError && <p className="text-sm text-danger">{saveError}</p>}
 
         {!isLoading && !error && items.length === 0 && (
           <p className="text-sm text-muted">Aun no hay items detectados.</p>

@@ -8,6 +8,7 @@ import {
   parseInvoiceResponse,
   type ParseInvoiceResponse,
 } from "@/domain/invoice-parse";
+import type { Ingredient } from "@/domain/models";
 import { toBaseQuantity, UNITS } from "@/domain/units";
 import { appServices } from "@/composition/root";
 import { Button } from "@/ui/components/ui/button";
@@ -43,10 +44,13 @@ export function InvoiceUploadView() {
   const [isParsing, setIsParsing] = useState(false);
   const [parseResult, setParseResult] = useState<ParseInvoiceResponse | null>(null);
   const [correctedItems, setCorrectedItems] = useState<ParseInvoiceItem[]>([]);
-  const [ingredientOptions, setIngredientOptions] = useState<string[]>([]);
+  const [ingredientOptions, setIngredientOptions] = useState<Ingredient[]>([]);
   const [ingredientSelections, setIngredientSelections] = useState<string[]>([]);
   const [parseError, setParseError] = useState<string | null>(null);
   const [parseRequestedAt, setParseRequestedAt] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     return () => {
@@ -62,7 +66,7 @@ export function InvoiceUploadView() {
     const loadIngredients = async () => {
       const snapshot = await appServices.getCatalogSnapshot();
       if (!active) return;
-      setIngredientOptions(snapshot.ingredients.map((item) => item.name));
+      setIngredientOptions(snapshot.ingredients);
     };
 
     loadIngredients().catch(() => {
@@ -102,8 +106,13 @@ export function InvoiceUploadView() {
 
   const parsedItems = correctedItems;
   const rowErrors = useMemo(
-    () => validateItems(parsedItems, ingredientSelections),
-    [parsedItems, ingredientSelections]
+    () =>
+      validateItems(
+        parsedItems,
+        ingredientSelections,
+        ingredientOptions
+      ),
+    [parsedItems, ingredientSelections, ingredientOptions]
   );
   const validItemsCount = parsedItems.length - Object.keys(rowErrors).length;
 
@@ -118,6 +127,8 @@ export function InvoiceUploadView() {
     setCorrectedItems([]);
     setIngredientSelections([]);
     setParseError(null);
+    setSaveMessage(null);
+    setSaveError(null);
   }
 
   async function handleParseDraft() {
@@ -151,6 +162,8 @@ export function InvoiceUploadView() {
         )
       );
       setParseRequestedAt(new Date().toISOString());
+      setSaveMessage(null);
+      setSaveError(null);
     } catch (error) {
       setParseResult(null);
       setCorrectedItems([]);
@@ -183,11 +196,43 @@ export function InvoiceUploadView() {
     () =>
       ingredientSelections.map((name) =>
         ingredientOptions.some(
-          (option) => normalizeName(option) === normalizeName(name)
+          (option) => normalizeName(option.name) === normalizeName(name)
         )
       ),
     [ingredientOptions, ingredientSelections]
   );
+
+  const canSave =
+    parsedItems.length > 0 &&
+    Object.keys(rowErrors).length === 0 &&
+    !isSaving;
+
+  async function handleSaveCatalog() {
+    if (!canSave) return;
+
+    setIsSaving(true);
+    setSaveMessage(null);
+    setSaveError(null);
+
+    try {
+      const itemsToUpsert = buildIngredientsForSave(
+        parsedItems,
+        ingredientSelections,
+        ingredientOptions
+      );
+
+      const savedCount = await appServices.saveIngredientCatalog(itemsToUpsert);
+      setSaveMessage(`Catalogo actualizado (${savedCount} ingredientes).`);
+    } catch (error) {
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : "No se pudo guardar el catalogo."
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
@@ -322,10 +367,15 @@ export function InvoiceUploadView() {
         lowConfidence={parseResult?.low_confidence ?? false}
         rowErrors={rowErrors}
         onItemChange={handleItemChange}
-        ingredientOptions={ingredientOptions}
+        ingredientOptions={ingredientOptions.map((option) => option.name)}
         ingredientSelections={ingredientSelections}
         ingredientMatches={ingredientMatches}
         onIngredientChange={handleIngredientChange}
+        onSave={handleSaveCatalog}
+        canSave={canSave}
+        isSaving={isSaving}
+        saveMessage={saveMessage}
+        saveError={saveError}
       />
     </div>
   );
@@ -333,7 +383,8 @@ export function InvoiceUploadView() {
 
 function validateItems(
   items: ParseInvoiceItem[],
-  ingredientSelections: string[]
+  ingredientSelections: string[],
+  ingredientOptions: Ingredient[]
 ): Record<number, string[]> {
   return items.reduce<Record<number, string[]>>((acc, item, index) => {
     const errors: string[] = [];
@@ -371,6 +422,25 @@ function validateItems(
       errors.push("Falta ingrediente");
     }
 
+    const normalizedSelection = normalizeName(ingredientName ?? "");
+    const existing = ingredientOptions.find(
+      (option) => normalizeName(option.name) === normalizedSelection
+    );
+
+    if (existing && item.qty !== undefined && item.unit) {
+      try {
+        const { baseUnit } = toBaseQuantity(
+          item.qty,
+          item.unit as (typeof UNITS)[number]
+        );
+        if (existing.baseUnit !== baseUnit) {
+          errors.push("Unidad base distinta");
+        }
+      } catch {
+        errors.push("Conversion invalida");
+      }
+    }
+
     if (errors.length > 0) {
       acc[index] = errors;
     }
@@ -388,8 +458,63 @@ function normalizeName(value: string) {
     .replace(/\s+/g, " ");
 }
 
-function suggestIngredientName(raw: string, options: string[]) {
+function suggestIngredientName(raw: string, options: Ingredient[]) {
   const normalized = normalizeName(raw);
-  const match = options.find((option) => normalizeName(option) === normalized);
-  return match ?? raw;
+  const match = options.find((option) => normalizeName(option.name) === normalized);
+  return match?.name ?? raw;
+}
+
+function buildIngredientsForSave(
+  items: ParseInvoiceItem[],
+  ingredientSelections: string[],
+  ingredientOptions: Ingredient[]
+): Ingredient[] {
+  return items.map((item, index) => {
+    const selection = ingredientSelections[index].trim();
+    const normalized = normalizeName(selection);
+    const existing = ingredientOptions.find(
+      (option) => normalizeName(option.name) === normalized
+    );
+
+    if (!item.qty || !item.unit) {
+      throw new Error("Faltan unidades para guardar el catalogo.");
+    }
+
+    const { baseQty, baseUnit } = toBaseQuantity(
+      item.qty,
+      item.unit as (typeof UNITS)[number]
+    );
+    const pricePerBaseUnit = item.line_total / baseQty;
+
+    const now = new Date().toISOString();
+
+    if (existing) {
+      if (existing.baseUnit !== baseUnit) {
+        throw new Error(
+          `Unidad base distinta para ${existing.name}. Confirmar reemplazo.`
+        );
+      }
+
+      return {
+        ...existing,
+        pricePerBaseUnit,
+        priceUpdatedAt: now,
+      };
+    }
+
+    return {
+      id: createId(),
+      name: selection,
+      baseUnit,
+      pricePerBaseUnit,
+      priceUpdatedAt: now,
+    };
+  });
+}
+
+function createId() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return `ing-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 }
