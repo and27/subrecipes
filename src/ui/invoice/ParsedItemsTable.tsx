@@ -70,7 +70,7 @@ export function ParsedItemsTable({
               <tbody>
                 {items.map((item, index) => (
                   <tr
-                    key={`${item.raw_description}-${index}`}
+                    key={`item-row-${index}`}
                     className="border-t border-border"
                   >
                     <td className="px-4 py-3 text-text">
