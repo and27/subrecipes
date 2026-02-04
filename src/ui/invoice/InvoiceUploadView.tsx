@@ -3,6 +3,10 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
+import {
+  parseInvoiceResponse,
+  type ParseInvoiceResponse,
+} from "@/domain/invoice-parse";
 import { Button } from "@/ui/components/ui/button";
 import {
   Card,
@@ -11,23 +15,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/ui/components/ui/card";
+import { ParsedItemsTable } from "@/ui/invoice/ParsedItemsTable";
 
 type DraftStatus = "sin_archivo" | "listo_para_parseo";
-
-type ParsedInvoiceItem = {
-  raw_description: string;
-  line_total: number;
-  qty?: number;
-  unit?: string;
-  confidence?: number;
-};
-
-type ParseInvoiceResponse = {
-  items: ParsedInvoiceItem[];
-  confidence: number;
-  low_confidence: boolean;
-  warnings: string[];
-};
 
 function formatDate(iso: string | null) {
   if (!iso) return "-";
@@ -85,6 +75,8 @@ export function InvoiceUploadView() {
     return { label: "Parseo completado", className: "text-success" };
   }, [isParsing, parseResult]);
 
+  const parsedItems = parseResult?.items ?? [];
+
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const nextFile = event.target.files?.[0] ?? null;
 
@@ -118,7 +110,7 @@ export function InvoiceUploadView() {
         );
       }
 
-      const data = (await response.json()) as ParseInvoiceResponse;
+      const data = parseInvoiceResponse(await response.json());
       setParseResult(data);
       setParseRequestedAt(new Date().toISOString());
     } catch (error) {
@@ -190,7 +182,6 @@ export function InvoiceUploadView() {
             {isParsing ? "Procesando factura..." : "Ejecutar parseo mock"}
           </Button>
 
-          {parseError && <p className="text-sm text-danger">{parseError}</p>}
         </CardContent>
       </Card>
 
@@ -253,44 +244,12 @@ export function InvoiceUploadView() {
         </CardContent>
       </Card>
 
-      {parseResult ? (
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Items detectados (mock)</CardTitle>
-            <CardDescription>
-              Resultado preliminar del endpoint /api/parse-invoice.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto rounded-2xl border border-border">
-              <table className="min-w-full text-sm">
-                <thead className="bg-surface-alt/70 text-left text-muted">
-                  <tr>
-                    <th className="px-4 py-3 font-medium">Descripcion</th>
-                    <th className="px-4 py-3 font-medium">Cantidad</th>
-                    <th className="px-4 py-3 font-medium">Unidad</th>
-                    <th className="px-4 py-3 font-medium">Total</th>
-                    <th className="px-4 py-3 font-medium">Confianza</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {parseResult.items.map((item, index) => (
-                    <tr key={`${item.raw_description}-${index}`} className="border-t border-border">
-                      <td className="px-4 py-3 text-text">{item.raw_description}</td>
-                      <td className="px-4 py-3 text-muted">{item.qty ?? "-"}</td>
-                      <td className="px-4 py-3 text-muted">{item.unit ?? "-"}</td>
-                      <td className="px-4 py-3 text-muted">{item.line_total}</td>
-                      <td className="px-4 py-3 text-muted">
-                        {formatConfidence(item.confidence)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      ) : null}
+      <ParsedItemsTable
+        items={parsedItems}
+        isLoading={isParsing}
+        error={parseError}
+        lowConfidence={parseResult?.low_confidence ?? false}
+      />
     </div>
   );
 }

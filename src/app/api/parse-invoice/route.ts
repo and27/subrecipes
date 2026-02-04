@@ -1,21 +1,10 @@
 import { NextResponse } from "next/server";
+import {
+  isParseInvoiceRequestBody,
+  type ParseInvoiceResponse,
+} from "@/domain/invoice-parse";
 
-type MockInvoiceItem = {
-  raw_description: string;
-  line_total: number;
-  qty?: number;
-  unit?: string;
-  confidence?: number;
-};
-
-type ParseInvoiceMockResponse = {
-  items: MockInvoiceItem[];
-  confidence: number;
-  low_confidence: boolean;
-  warnings: string[];
-};
-
-function buildMockResponse(fileName: string): ParseInvoiceMockResponse {
+function buildMockResponse(fileName: string): ParseInvoiceResponse {
   const lowered = fileName.toLowerCase();
   const lowConfidence =
     lowered.includes("blurry") ||
@@ -90,12 +79,12 @@ async function readFileNameFromRequest(request: Request): Promise<string | null>
   }
 
   if (contentType.includes("application/json")) {
-    const payload = (await request.json()) as { fileName?: unknown };
-    if (typeof payload.fileName !== "string" || payload.fileName.trim() === "") {
+    const payload = await request.json();
+    if (!isParseInvoiceRequestBody(payload)) {
       return null;
     }
 
-    return payload.fileName;
+    return payload.fileName.trim();
   }
 
   return null;
