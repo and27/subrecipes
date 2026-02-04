@@ -32,11 +32,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-background text-foreground lg:grid lg:grid-cols-[280px_1fr]">
-      <aside className="border-b border-foreground/10 bg-surface/70 lg:sticky lg:top-0 lg:h-screen lg:border-r lg:border-b-0">
+    <div className="min-h-screen bg-bg text-text lg:grid lg:grid-cols-[280px_1fr]">
+      <aside className="border-b border-border bg-surface/80 lg:sticky lg:top-0 lg:h-screen lg:border-r lg:border-b-0">
         <div className="space-y-8 p-6">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-foreground/55">
+            <p className="text-xs uppercase tracking-[0.2em] text-muted">
               Costing Recipes V0
             </p>
             <h1 className="mt-2 text-2xl [font-family:var(--font-display)]">
@@ -53,14 +53,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "rounded-2xl border border-foreground/10 px-4 py-3 transition",
+                    "rounded-2xl border border-border px-4 py-3 transition",
                     active
-                      ? "border-accent/60 bg-accent/10"
-                      : "hover:border-foreground/20 hover:bg-foreground/5"
+                      ? "border-primary/60 bg-accent-soft/65"
+                      : "hover:border-border-strong hover:bg-surface-alt/70"
                   )}
                 >
-                  <p className="text-sm font-semibold text-foreground">{item.label}</p>
-                  <p className="text-xs text-foreground/60">{item.description}</p>
+                  <p className="text-sm font-semibold text-text">{item.label}</p>
+                  <p className="text-xs text-muted">{item.description}</p>
                 </Link>
               );
             })}
@@ -69,11 +69,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <section>
-        <header className="border-b border-foreground/10 bg-background/70 px-6 py-4 backdrop-blur">
-          <p className="text-xs uppercase tracking-[0.2em] text-foreground/55">
+        <header className="border-b border-border bg-bg/80 px-6 py-4 backdrop-blur">
+          <p className="text-xs uppercase tracking-[0.2em] text-muted">
             Modulo activo
           </p>
-          <h2 className="text-xl font-semibold text-foreground">
+          <h2 className="text-xl font-semibold text-text">
             {getPageTitle(pathname)}
           </h2>
         </header>
