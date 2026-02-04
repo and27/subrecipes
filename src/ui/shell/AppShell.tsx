@@ -55,11 +55,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   className={cn(
                     "rounded-2xl border border-border px-4 py-3 transition",
                     active
-                      ? "border-primary/60 bg-accent-soft/65"
-                      : "hover:border-border-strong hover:bg-surface-alt/70"
+                      ? "bg-border-strong/30"
+                      : "hover:border-border-strong hover:bg-surface-alt/70",
                   )}
                 >
-                  <p className="text-sm font-semibold text-text">{item.label}</p>
+                  <p className="text-sm font-semibold text-text">
+                    {item.label}
+                  </p>
                   <p className="text-xs text-muted">{item.description}</p>
                 </Link>
               );
