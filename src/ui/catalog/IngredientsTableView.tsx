@@ -22,24 +22,24 @@ export function IngredientsTableView() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex flex-wrap gap-4 text-xs text-foreground/60">
+        <div className="flex flex-wrap gap-4 text-xs text-muted">
           <span>Seed aplicado: {seeded ? "si" : "ya estaba"}</span>
           <span>
             Registros: {snapshot ? snapshot.ingredients.length : "-"}
           </span>
         </div>
 
-        {loading && <p className="text-sm text-foreground/60">Cargando ingredientes...</p>}
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {loading && <p className="text-sm text-muted">Cargando ingredientes...</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
 
         {!loading && !error && snapshot && snapshot.ingredients.length === 0 && (
-          <p className="text-sm text-foreground/60">No hay ingredientes registrados.</p>
+          <p className="text-sm text-muted">No hay ingredientes registrados.</p>
         )}
 
         {!loading && !error && snapshot && snapshot.ingredients.length > 0 && (
-          <div className="overflow-x-auto rounded-2xl border border-foreground/10">
+          <div className="overflow-x-auto rounded-2xl border border-border">
             <table className="min-w-full text-sm">
-              <thead className="bg-foreground/5 text-left text-foreground/70">
+              <thead className="bg-surface-alt/70 text-left text-muted">
                 <tr>
                   <th className="px-4 py-3 font-medium">Ingrediente</th>
                   <th className="px-4 py-3 font-medium">Unidad base</th>
@@ -48,10 +48,10 @@ export function IngredientsTableView() {
               </thead>
               <tbody>
                 {snapshot.ingredients.map((ingredient) => (
-                  <tr key={ingredient.id} className="border-t border-foreground/10">
-                    <td className="px-4 py-3 font-medium text-foreground">{ingredient.name}</td>
-                    <td className="px-4 py-3 text-foreground/70">{ingredient.baseUnit}</td>
-                    <td className="px-4 py-3 text-foreground/70">
+                  <tr key={ingredient.id} className="border-t border-border">
+                    <td className="px-4 py-3 font-medium text-text">{ingredient.name}</td>
+                    <td className="px-4 py-3 text-muted">{ingredient.baseUnit}</td>
+                    <td className="px-4 py-3 text-muted">
                       {formatNumber(ingredient.pricePerBaseUnit)}
                     </td>
                   </tr>
@@ -64,3 +64,5 @@ export function IngredientsTableView() {
     </Card>
   );
 }
+
+

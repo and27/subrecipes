@@ -15,11 +15,11 @@ export function SubRecipesListView() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {loading && <p className="text-sm text-foreground/60">Cargando subrecetas...</p>}
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {loading && <p className="text-sm text-muted">Cargando subrecetas...</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
 
         {!loading && !error && snapshot && snapshot.subRecipes.length === 0 && (
-          <p className="text-sm text-foreground/60">No hay subrecetas registradas.</p>
+          <p className="text-sm text-muted">No hay subrecetas registradas.</p>
         )}
 
         {!loading && !error && snapshot && snapshot.subRecipes.length > 0 && (
@@ -27,10 +27,10 @@ export function SubRecipesListView() {
             {snapshot.subRecipes.map((subRecipe) => (
               <li
                 key={subRecipe.id}
-                className="rounded-2xl border border-foreground/10 bg-background/70 px-4 py-4"
+                className="rounded-2xl border border-border bg-surface-alt/80 px-4 py-4"
               >
-                <p className="text-sm font-semibold text-foreground">{subRecipe.name}</p>
-                <p className="text-xs text-foreground/60">
+                <p className="text-sm font-semibold text-text">{subRecipe.name}</p>
+                <p className="text-xs text-muted">
                   Componentes: {subRecipe.items.length}
                 </p>
               </li>
@@ -41,3 +41,5 @@ export function SubRecipesListView() {
     </Card>
   );
 }
+
+

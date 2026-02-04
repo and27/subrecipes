@@ -1,38 +1,70 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f6f1ea;
-  --foreground: #1f1a17;
-  --surface: #fff9f2;
-  --accent: #c46a3b;
-  --accent-2: #2f5e5c;
+  --bg: #fcf8ec;
+  --surface: #f2e8c4;
+  --surface-alt: #fffdf6;
+  --text: #1f2426;
+  --text-muted: #616668;
+  --border: #d8ccad;
+  --border-strong: #b2a585;
+  --primary: #2b879e;
+  --primary-contrast: #f4fbfc;
+  --accent: #3ec9a7;
+  --accent-soft: #b9e7cf;
+  --success: #2f9a6f;
+  --warning: #b8872d;
+  --danger: #b44a4a;
+  --info: #2b879e;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-bg: var(--bg);
+  --color-background: var(--bg);
+  --color-text: var(--text);
+  --color-foreground: var(--text);
+  --color-muted: var(--text-muted);
   --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-primary: var(--primary);
+  --color-primary-contrast: var(--primary-contrast);
   --color-accent: var(--accent);
-  --color-accent-2: var(--accent-2);
+  --color-accent-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
   --font-sans: var(--font-body);
   --font-display: var(--font-display);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #14110e;
-    --foreground: #f3ede5;
-    --surface: #1f1a17;
-    --accent: #d27d55;
-    --accent-2: #6bb1ac;
+    --bg: #101719;
+    --surface: #162125;
+    --surface-alt: #1c2b30;
+    --text: #edf6f7;
+    --text-muted: #a0b3b7;
+    --border: #2f444a;
+    --border-strong: #426068;
+    --primary: #63bfd4;
+    --primary-contrast: #08232b;
+    --accent: #4fd7bb;
+    --accent-soft: #1f4a43;
+    --success: #58b88d;
+    --warning: #d1a45e;
+    --danger: #d06c6c;
+    --info: #63bfd4;
   }
 }
 
 body {
   background:
-    radial-gradient(circle at 15% -10%, rgba(196, 106, 59, 0.18), transparent 45%),
-    radial-gradient(circle at 85% -20%, rgba(47, 94, 92, 0.18), transparent 40%),
-    var(--background);
-  color: var(--foreground);
+    radial-gradient(circle at 12% -10%, color-mix(in oklab, var(--accent) 26%, transparent), transparent 45%),
+    radial-gradient(circle at 88% -20%, color-mix(in oklab, var(--primary) 26%, transparent), transparent 42%),
+    var(--bg);
+  color: var(--text);
   font-family: var(--font-body), system-ui, sans-serif;
 }

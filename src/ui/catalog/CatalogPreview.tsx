@@ -81,7 +81,7 @@ export function CatalogPreview() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex flex-wrap items-center gap-4 text-sm text-foreground/60">
+          <div className="flex flex-wrap items-center gap-4 text-sm text-muted">
             <span>Conectividad: {onlineLabel}</span>
             <span>Seed aplicado: {seeded ? "si" : "ya estaba"}</span>
             <span>
@@ -89,10 +89,10 @@ export function CatalogPreview() {
             </span>
           </div>
           {error && (
-            <p className="text-sm text-red-600">{error}</p>
+            <p className="text-sm text-danger">{error}</p>
           )}
           {loading && (
-            <p className="text-sm text-foreground/60">
+            <p className="text-sm text-muted">
               Cargando datos locales...
             </p>
           )}
@@ -114,16 +114,16 @@ export function CatalogPreview() {
                   key={ingredient.id}
                   className="flex items-center justify-between gap-4 text-sm"
                 >
-                  <span className="font-medium text-foreground">
+                  <span className="font-medium text-text">
                     {ingredient.name}
                   </span>
-                  <span className="text-foreground/60">
+                  <span className="text-muted">
                     {formatNumber(ingredient.pricePerBaseUnit)} / {ingredient.baseUnit}
                   </span>
                 </div>
               ))}
               {!snapshot && !loading && (
-                <p className="text-sm text-foreground/60">
+                <p className="text-sm text-muted">
                   No hay ingredientes cargados.
                 </p>
               )}
@@ -142,26 +142,26 @@ export function CatalogPreview() {
             {snapshot?.recipes[0] && recipeCost ? (
               <div className="space-y-2 text-sm">
                 <div className="flex items-center justify-between">
-                  <span className="text-foreground/60">Receta</span>
-                  <span className="font-medium text-foreground">
+                  <span className="text-muted">Receta</span>
+                  <span className="font-medium text-text">
                     {snapshot.recipes[0].name}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-foreground/60">Costo total</span>
+                  <span className="text-muted">Costo total</span>
                   <span className="font-medium">
                     {formatNumber(recipeCost.total)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-foreground/60">Costo por porcion</span>
+                  <span className="text-muted">Costo por porcion</span>
                   <span className="font-medium">
                     {formatNumber(recipeCost.perPax)}
                   </span>
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-foreground/60">
+              <p className="text-sm text-muted">
                 Aun no hay recetas listas para calcular.
               </p>
             )}
@@ -174,3 +174,5 @@ export function CatalogPreview() {
     </section>
   );
 }
+
+

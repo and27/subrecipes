@@ -58,11 +58,11 @@ export function RecipesListView() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {loading && <p className="text-sm text-foreground/60">Cargando recetas...</p>}
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {loading && <p className="text-sm text-muted">Cargando recetas...</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
 
         {!loading && !error && snapshot && snapshot.recipes.length === 0 && (
-          <p className="text-sm text-foreground/60">No hay recetas registradas.</p>
+          <p className="text-sm text-muted">No hay recetas registradas.</p>
         )}
 
         {!loading && !error && snapshot && snapshot.recipes.length > 0 && (
@@ -73,14 +73,14 @@ export function RecipesListView() {
               return (
                 <li
                   key={recipe.id}
-                  className="rounded-2xl border border-foreground/10 bg-background/70 px-4 py-4"
+                  className="rounded-2xl border border-border bg-surface-alt/80 px-4 py-4"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
-                    <p className="text-sm font-semibold text-foreground">{recipe.name}</p>
-                    <p className="text-xs text-foreground/60">PAX: {recipe.pax}</p>
+                    <p className="text-sm font-semibold text-text">{recipe.name}</p>
+                    <p className="text-xs text-muted">PAX: {recipe.pax}</p>
                   </div>
 
-                  <div className="mt-2 flex flex-wrap gap-4 text-xs text-foreground/70">
+                  <div className="mt-2 flex flex-wrap gap-4 text-xs text-muted">
                     <span>
                       Costo total: {cost ? formatNumber(cost.total) : "calculando..."}
                     </span>
@@ -97,3 +97,5 @@ export function RecipesListView() {
     </Card>
   );
 }
+
+

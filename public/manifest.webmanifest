@@ -4,8 +4,8 @@
   "description": "PWA offline-first para costeo de recetas y subrecetas.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f6f1ea",
-  "theme_color": "#1f1a17",
+  "background_color": "#fcf8ec",
+  "theme_color": "#2b879e",
   "icons": [
     {
       "src": "/icon.svg",
