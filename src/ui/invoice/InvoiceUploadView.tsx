@@ -8,6 +8,7 @@ import {
   parseInvoiceResponse,
   type ParseInvoiceResponse,
 } from "@/domain/invoice-parse";
+import { toBaseQuantity, UNITS } from "@/domain/units";
 import { Button } from "@/ui/components/ui/button";
 import {
   Card,
@@ -296,6 +297,18 @@ function validateItems(items: ParseInvoiceItem[]): Record<number, string[]> {
 
     if (item.qty !== undefined && (!item.unit || item.unit.trim() === "")) {
       errors.push("Falta unidad");
+    }
+
+    if (item.unit && !UNITS.includes(item.unit as (typeof UNITS)[number])) {
+      errors.push("Unidad no valida");
+    }
+
+    if (item.qty !== undefined && item.unit) {
+      try {
+        toBaseQuantity(item.qty, item.unit as (typeof UNITS)[number]);
+      } catch {
+        errors.push("Conversion invalida");
+      }
     }
 
     if (errors.length > 0) {

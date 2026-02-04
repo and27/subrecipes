@@ -1,4 +1,5 @@
 import type { ParseInvoiceItem } from "@/domain/invoice-parse";
+import { toBaseQuantity, type Unit } from "@/domain/units";
 import {
   Card,
   CardContent,
@@ -19,6 +20,28 @@ type ParsedItemsTableProps = {
 function formatConfidence(value: number | undefined) {
   if (value === undefined) return "-";
   return `${Math.round(value * 100)}%`;
+}
+
+function renderBaseQty(item: ParseInvoiceItem) {
+  if (item.qty === undefined || !item.unit) return "-";
+
+  try {
+    const { baseQty } = toBaseQuantity(item.qty, item.unit as Unit);
+    return baseQty;
+  } catch {
+    return "-";
+  }
+}
+
+function renderBaseUnit(item: ParseInvoiceItem) {
+  if (item.qty === undefined || !item.unit) return "-";
+
+  try {
+    const { baseUnit } = toBaseQuantity(item.qty, item.unit as Unit);
+    return baseUnit;
+  } catch {
+    return "-";
+  }
 }
 
 export function ParsedItemsTable({
@@ -63,6 +86,8 @@ export function ParsedItemsTable({
                   <th className="px-4 py-3 font-medium">Cantidad</th>
                   <th className="px-4 py-3 font-medium">Unidad</th>
                   <th className="px-4 py-3 font-medium">Total</th>
+                  <th className="px-4 py-3 font-medium">Base qty</th>
+                  <th className="px-4 py-3 font-medium">Base unit</th>
                   <th className="px-4 py-3 font-medium">Confianza</th>
                   <th className="px-4 py-3 font-medium">Validacion</th>
                 </tr>
@@ -134,6 +159,12 @@ export function ParsedItemsTable({
                         }
                         className="w-28 rounded-lg border border-border bg-surface-alt px-2 py-1 text-sm text-text"
                       />
+                    </td>
+                    <td className="px-4 py-3 text-muted">
+                      {renderBaseQty(item)}
+                    </td>
+                    <td className="px-4 py-3 text-muted">
+                      {renderBaseUnit(item)}
                     </td>
                     <td className="px-4 py-3 text-muted">
                       {formatConfidence(item.confidence)}
