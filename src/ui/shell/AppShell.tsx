@@ -7,6 +7,11 @@ import { cn } from "@/ui/lib/utils";
 
 const NAV_ITEMS = [
   {
+    href: "/factura",
+    label: "Factura",
+    description: "Ingesta y borrador",
+  },
+  {
     href: "/ingredientes",
     label: "Ingredientes",
     description: "Catalogo base",
