@@ -8,6 +8,8 @@ import {
   parseInvoiceResponse,
   type ParseInvoiceResponse,
 } from "@/domain/invoice-parse";
+import { toBaseQuantity, UNITS } from "@/domain/units";
+import { appServices } from "@/composition/root";
 import { Button } from "@/ui/components/ui/button";
 import {
   Card,
@@ -41,6 +43,8 @@ export function InvoiceUploadView() {
   const [isParsing, setIsParsing] = useState(false);
   const [parseResult, setParseResult] = useState<ParseInvoiceResponse | null>(null);
   const [correctedItems, setCorrectedItems] = useState<ParseInvoiceItem[]>([]);
+  const [ingredientOptions, setIngredientOptions] = useState<string[]>([]);
+  const [ingredientSelections, setIngredientSelections] = useState<string[]>([]);
   const [parseError, setParseError] = useState<string | null>(null);
   const [parseRequestedAt, setParseRequestedAt] = useState<string | null>(null);
 
@@ -51,6 +55,25 @@ export function InvoiceUploadView() {
       }
     };
   }, [previewUrl]);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadIngredients = async () => {
+      const snapshot = await appServices.getCatalogSnapshot();
+      if (!active) return;
+      setIngredientOptions(snapshot.ingredients.map((item) => item.name));
+    };
+
+    loadIngredients().catch(() => {
+      if (!active) return;
+      setIngredientOptions([]);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const draftStatus: DraftStatus = selectedFile
     ? "listo_para_parseo"
@@ -78,7 +101,10 @@ export function InvoiceUploadView() {
   }, [isParsing, parseResult]);
 
   const parsedItems = correctedItems;
-  const rowErrors = useMemo(() => validateItems(parsedItems), [parsedItems]);
+  const rowErrors = useMemo(
+    () => validateItems(parsedItems, ingredientSelections),
+    [parsedItems, ingredientSelections]
+  );
   const validItemsCount = parsedItems.length - Object.keys(rowErrors).length;
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -90,6 +116,7 @@ export function InvoiceUploadView() {
     setParseRequestedAt(null);
     setParseResult(null);
     setCorrectedItems([]);
+    setIngredientSelections([]);
     setParseError(null);
   }
 
@@ -118,10 +145,16 @@ export function InvoiceUploadView() {
       const data = parseInvoiceResponse(await response.json());
       setParseResult(data);
       setCorrectedItems(data.items);
+      setIngredientSelections(
+        data.items.map((item) =>
+          suggestIngredientName(item.raw_description, ingredientOptions)
+        )
+      );
       setParseRequestedAt(new Date().toISOString());
     } catch (error) {
       setParseResult(null);
       setCorrectedItems([]);
+      setIngredientSelections([]);
       setParseError(
         error instanceof Error
           ? error.message
@@ -139,6 +172,22 @@ export function InvoiceUploadView() {
       )
     );
   }
+
+  function handleIngredientChange(index: number, nextName: string) {
+    setIngredientSelections((previous) =>
+      previous.map((name, itemIndex) => (itemIndex === index ? nextName : name))
+    );
+  }
+
+  const ingredientMatches = useMemo(
+    () =>
+      ingredientSelections.map((name) =>
+        ingredientOptions.some(
+          (option) => normalizeName(option) === normalizeName(name)
+        )
+      ),
+    [ingredientOptions, ingredientSelections]
+  );
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
@@ -273,12 +322,19 @@ export function InvoiceUploadView() {
         lowConfidence={parseResult?.low_confidence ?? false}
         rowErrors={rowErrors}
         onItemChange={handleItemChange}
+        ingredientOptions={ingredientOptions}
+        ingredientSelections={ingredientSelections}
+        ingredientMatches={ingredientMatches}
+        onIngredientChange={handleIngredientChange}
       />
     </div>
   );
 }
 
-function validateItems(items: ParseInvoiceItem[]): Record<number, string[]> {
+function validateItems(
+  items: ParseInvoiceItem[],
+  ingredientSelections: string[]
+): Record<number, string[]> {
   return items.reduce<Record<number, string[]>>((acc, item, index) => {
     const errors: string[] = [];
 
@@ -298,10 +354,42 @@ function validateItems(items: ParseInvoiceItem[]): Record<number, string[]> {
       errors.push("Falta unidad");
     }
 
+    if (item.unit && !UNITS.includes(item.unit as (typeof UNITS)[number])) {
+      errors.push("Unidad no valida");
+    }
+
+    if (item.qty !== undefined && item.unit) {
+      try {
+        toBaseQuantity(item.qty, item.unit as (typeof UNITS)[number]);
+      } catch {
+        errors.push("Conversion invalida");
+      }
+    }
+
+    const ingredientName = ingredientSelections[index]?.trim();
+    if (!ingredientName) {
+      errors.push("Falta ingrediente");
+    }
+
     if (errors.length > 0) {
       acc[index] = errors;
     }
 
     return acc;
   }, {});
+}
+
+function normalizeName(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/\s+/g, " ");
+}
+
+function suggestIngredientName(raw: string, options: string[]) {
+  const normalized = normalizeName(raw);
+  const match = options.find((option) => normalizeName(option) === normalized);
+  return match ?? raw;
 }
