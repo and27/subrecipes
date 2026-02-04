@@ -14,11 +14,43 @@ import {
 
 type DraftStatus = "sin_archivo" | "listo_para_parseo";
 
+type ParsedInvoiceItem = {
+  raw_description: string;
+  line_total: number;
+  qty?: number;
+  unit?: string;
+  confidence?: number;
+};
+
+type ParseInvoiceResponse = {
+  items: ParsedInvoiceItem[];
+  confidence: number;
+  low_confidence: boolean;
+  warnings: string[];
+};
+
+function formatDate(iso: string | null) {
+  if (!iso) return "-";
+
+  return new Intl.DateTimeFormat("es-AR", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(iso));
+}
+
+function formatConfidence(value: number | undefined) {
+  if (value === undefined) return "-";
+  return `${Math.round(value * 100)}%`;
+}
+
 export function InvoiceUploadView() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [draftCreatedAt, setDraftCreatedAt] = useState<string | null>(null);
-  const [parseMessage, setParseMessage] = useState<string | null>(null);
+  const [isParsing, setIsParsing] = useState(false);
+  const [parseResult, setParseResult] = useState<ParseInvoiceResponse | null>(null);
+  const [parseError, setParseError] = useState<string | null>(null);
+  const [parseRequestedAt, setParseRequestedAt] = useState<string | null>(null);
 
   useEffect(() => {
     return () => {
@@ -37,14 +69,21 @@ export function InvoiceUploadView() {
       ? "Listo para parseo"
       : "Pendiente de archivo";
 
-  const formattedCreatedAt = useMemo(() => {
-    if (!draftCreatedAt) return "-";
+  const parseStatus = useMemo(() => {
+    if (isParsing) {
+      return { label: "Procesando...", className: "text-info" };
+    }
 
-    return new Intl.DateTimeFormat("es-AR", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(new Date(draftCreatedAt));
-  }, [draftCreatedAt]);
+    if (!parseResult) {
+      return { label: "Pendiente", className: "text-muted" };
+    }
+
+    if (parseResult.low_confidence) {
+      return { label: "Baja confianza", className: "text-warning" };
+    }
+
+    return { label: "Parseo completado", className: "text-success" };
+  }, [isParsing, parseResult]);
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const nextFile = event.target.files?.[0] ?? null;
@@ -52,16 +91,46 @@ export function InvoiceUploadView() {
     setSelectedFile(nextFile);
     setPreviewUrl(nextFile ? URL.createObjectURL(nextFile) : null);
     setDraftCreatedAt(nextFile ? new Date().toISOString() : null);
-    setParseMessage(null);
+    setParseRequestedAt(null);
+    setParseResult(null);
+    setParseError(null);
   }
 
-  function handleParseDraft() {
-    if (!selectedFile) return;
+  async function handleParseDraft() {
+    if (!selectedFile || isParsing) return;
 
-    // Este paso conecta con el endpoint mock en el siguiente issue (#14).
-    setParseMessage(
-      "Borrador preparado. En el siguiente issue se conecta /api/parse-invoice."
-    );
+    setIsParsing(true);
+    setParseError(null);
+
+    const formData = new FormData();
+    formData.append("file", selectedFile, selectedFile.name);
+
+    try {
+      const response = await fetch("/api/parse-invoice", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorPayload = (await response.json()) as { error?: string };
+        throw new Error(
+          errorPayload.error ?? "No se pudo procesar la factura en este momento."
+        );
+      }
+
+      const data = (await response.json()) as ParseInvoiceResponse;
+      setParseResult(data);
+      setParseRequestedAt(new Date().toISOString());
+    } catch (error) {
+      setParseResult(null);
+      setParseError(
+        error instanceof Error
+          ? error.message
+          : "Error inesperado en el parseo de factura."
+      );
+    } finally {
+      setIsParsing(false);
+    }
   }
 
   return (
@@ -70,7 +139,7 @@ export function InvoiceUploadView() {
         <CardHeader>
           <CardTitle>Ingesta de factura</CardTitle>
           <CardDescription>
-            Carga una imagen, revisa el preview y prepara el borrador local.
+            Carga una imagen, revisa el preview y ejecuta el parseo mock.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -115,12 +184,13 @@ export function InvoiceUploadView() {
 
           <Button
             onClick={handleParseDraft}
-            disabled={!selectedFile}
+            disabled={!selectedFile || isParsing}
             className="w-full sm:w-auto"
           >
-            Crear borrador de parseo
+            {isParsing ? "Procesando factura..." : "Ejecutar parseo mock"}
           </Button>
-          {parseMessage && <p className="text-sm text-info">{parseMessage}</p>}
+
+          {parseError && <p className="text-sm text-danger">{parseError}</p>}
         </CardContent>
       </Card>
 
@@ -128,7 +198,7 @@ export function InvoiceUploadView() {
         <CardHeader>
           <CardTitle>Borrador local</CardTitle>
           <CardDescription>
-            Estado preliminar antes de llamar al parseo de factura.
+            Estado preliminar y respuesta del parseo mock.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 text-sm">
@@ -146,15 +216,35 @@ export function InvoiceUploadView() {
 
           <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
             <span className="text-muted">Fecha de carga</span>
-            <span className="font-medium text-text">{formattedCreatedAt}</span>
+            <span className="font-medium text-text">{formatDate(draftCreatedAt)}</span>
           </div>
 
           <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
             <span className="text-muted">Parseo IA</span>
-            <span className="font-medium text-warning">
-              Pendiente (issue #14)
+            <span className={`font-medium ${parseStatus.className}`}>
+              {parseStatus.label}
             </span>
           </div>
+
+          <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
+            <span className="text-muted">Confianza global</span>
+            <span className="font-medium text-text">
+              {parseResult ? formatConfidence(parseResult.confidence) : "-"}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
+            <span className="text-muted">Ultimo parseo</span>
+            <span className="font-medium text-text">
+              {formatDate(parseRequestedAt)}
+            </span>
+          </div>
+
+          {parseResult?.warnings.length ? (
+            <div className="rounded-xl border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-warning">
+              {parseResult.warnings[0]}
+            </div>
+          ) : null}
 
           <p className="text-xs text-muted">
             Nota: en V0, el resultado de IA es un borrador y requiere correccion
@@ -162,6 +252,45 @@ export function InvoiceUploadView() {
           </p>
         </CardContent>
       </Card>
+
+      {parseResult ? (
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Items detectados (mock)</CardTitle>
+            <CardDescription>
+              Resultado preliminar del endpoint /api/parse-invoice.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto rounded-2xl border border-border">
+              <table className="min-w-full text-sm">
+                <thead className="bg-surface-alt/70 text-left text-muted">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">Descripcion</th>
+                    <th className="px-4 py-3 font-medium">Cantidad</th>
+                    <th className="px-4 py-3 font-medium">Unidad</th>
+                    <th className="px-4 py-3 font-medium">Total</th>
+                    <th className="px-4 py-3 font-medium">Confianza</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {parseResult.items.map((item, index) => (
+                    <tr key={`${item.raw_description}-${index}`} className="border-t border-border">
+                      <td className="px-4 py-3 text-text">{item.raw_description}</td>
+                      <td className="px-4 py-3 text-muted">{item.qty ?? "-"}</td>
+                      <td className="px-4 py-3 text-muted">{item.unit ?? "-"}</td>
+                      <td className="px-4 py-3 text-muted">{item.line_total}</td>
+                      <td className="px-4 py-3 text-muted">
+                        {formatConfidence(item.confidence)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   );
 }
