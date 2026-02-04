@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { POST } from "@/app/api/parse-invoice/route";
+import type {
+  ParseInvoiceErrorResponse,
+  ParseInvoiceResponse,
+} from "@/domain/invoice-parse";
 
 describe("POST /api/parse-invoice", () => {
   it("devuelve items mock con confianza alta para factura clara", async () => {
@@ -13,11 +17,7 @@ describe("POST /api/parse-invoice", () => {
     });
 
     const response = await POST(request);
-    const payload = (await response.json()) as {
-      confidence: number;
-      low_confidence: boolean;
-      items: Array<{ raw_description: string }>;
-    };
+    const payload = (await response.json()) as ParseInvoiceResponse;
 
     expect(response.status).toBe(200);
     expect(payload.low_confidence).toBe(false);
@@ -35,10 +35,7 @@ describe("POST /api/parse-invoice", () => {
     });
 
     const response = await POST(request);
-    const payload = (await response.json()) as {
-      low_confidence: boolean;
-      warnings: string[];
-    };
+    const payload = (await response.json()) as ParseInvoiceResponse;
 
     expect(response.status).toBe(200);
     expect(payload.low_confidence).toBe(true);
@@ -55,7 +52,7 @@ describe("POST /api/parse-invoice", () => {
     });
 
     const response = await POST(request);
-    const payload = (await response.json()) as { error: string };
+    const payload = (await response.json()) as ParseInvoiceErrorResponse;
 
     expect(response.status).toBe(400);
     expect(payload.error).toMatch(/entrada invalida/i);
