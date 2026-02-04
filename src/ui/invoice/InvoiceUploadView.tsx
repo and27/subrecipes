@@ -485,6 +485,7 @@ function buildIngredientsForSave(
       item.unit as (typeof UNITS)[number]
     );
     const pricePerBaseUnit = item.line_total / baseQty;
+    const purchaseUnitCost = item.line_total / item.qty;
 
     const now = new Date().toISOString();
 
@@ -499,6 +500,10 @@ function buildIngredientsForSave(
         ...existing,
         pricePerBaseUnit,
         priceUpdatedAt: now,
+        purchasePriceExVat: item.line_total,
+        purchaseQty: item.qty,
+        purchaseUnit: item.unit,
+        purchaseUnitCost,
       };
     }
 
@@ -508,6 +513,10 @@ function buildIngredientsForSave(
       baseUnit,
       pricePerBaseUnit,
       priceUpdatedAt: now,
+      purchasePriceExVat: item.line_total,
+      purchaseQty: item.qty,
+      purchaseUnit: item.unit,
+      purchaseUnitCost,
     };
   });
 }

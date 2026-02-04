@@ -42,6 +42,10 @@ export function IngredientsTableView() {
               <thead className="bg-surface-alt/70 text-left text-muted">
                 <tr>
                   <th className="px-4 py-3 font-medium">Ingrediente</th>
+                  <th className="px-4 py-3 font-medium">Precio sin IVA</th>
+                  <th className="px-4 py-3 font-medium">Cantidad comprada</th>
+                  <th className="px-4 py-3 font-medium">Unidad compra</th>
+                  <th className="px-4 py-3 font-medium">Costo unitario</th>
                   <th className="px-4 py-3 font-medium">Unidad base</th>
                   <th className="px-4 py-3 font-medium">Precio por unidad base</th>
                 </tr>
@@ -50,6 +54,24 @@ export function IngredientsTableView() {
                 {snapshot.ingredients.map((ingredient) => (
                   <tr key={ingredient.id} className="border-t border-border">
                     <td className="px-4 py-3 font-medium text-text">{ingredient.name}</td>
+                    <td className="px-4 py-3 text-muted">
+                      {ingredient.purchasePriceExVat !== undefined
+                        ? formatNumber(ingredient.purchasePriceExVat)
+                        : "-"}
+                    </td>
+                    <td className="px-4 py-3 text-muted">
+                      {ingredient.purchaseQty !== undefined
+                        ? formatNumber(ingredient.purchaseQty)
+                        : "-"}
+                    </td>
+                    <td className="px-4 py-3 text-muted">
+                      {ingredient.purchaseUnit ?? "-"}
+                    </td>
+                    <td className="px-4 py-3 text-muted">
+                      {ingredient.purchaseUnitCost !== undefined
+                        ? formatNumber(ingredient.purchaseUnitCost)
+                        : "-"}
+                    </td>
                     <td className="px-4 py-3 text-muted">{ingredient.baseUnit}</td>
                     <td className="px-4 py-3 text-muted">
                       {formatNumber(ingredient.pricePerBaseUnit)}
@@ -64,5 +86,4 @@ export function IngredientsTableView() {
     </Card>
   );
 }
-
 

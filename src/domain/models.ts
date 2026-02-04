@@ -6,6 +6,10 @@ export type Ingredient = {
   baseUnit: BaseUnit;
   pricePerBaseUnit: number;
   priceUpdatedAt?: string;
+  purchasePriceExVat?: number;
+  purchaseQty?: number;
+  purchaseUnit?: string;
+  purchaseUnitCost?: number;
 };
 
 export type SubRecipeItem = {
