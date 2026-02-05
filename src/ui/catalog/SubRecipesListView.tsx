@@ -426,6 +426,9 @@ export function SubRecipesListView() {
                 Agregar ingrediente
               </Button>
             </div>
+            <div className="border-b border-border bg-surface-alt/60 px-4 py-2 text-xs text-muted">
+              Nota: una subreceta solo puede incluir ingredientes (no subrecetas).
+            </div>
             <div className="divide-y divide-border">
               {draft.items.map((item, index) => {
                 const ingredient = ingredientsById.get(item.ingredientId);
