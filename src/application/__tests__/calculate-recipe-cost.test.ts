@@ -12,6 +12,9 @@ const subRecipes: SubRecipe[] = [
   {
     id: "sub-a",
     name: "Relleno",
+    yieldQty: 1,
+    yieldUnit: "unit",
+    pax: 1,
     items: [{ ingredientId: "ing-a", qty: 300, unit: "g" }],
   },
 ];
@@ -36,6 +39,7 @@ const repositories: CatalogRepositories = {
     list: async () => subRecipes,
     getById: async (id) => subRecipes.find((item) => item.id === id),
     upsertMany: async () => undefined,
+    deleteById: async () => undefined,
     clear: async () => undefined,
   },
   recipeRepository: {

@@ -1,4 +1,4 @@
-import type { BaseUnit } from "./units";
+import type { BaseUnit, Unit } from "./units";
 
 export type Ingredient = {
   id: string;
@@ -21,6 +21,9 @@ export type SubRecipeItem = {
 export type SubRecipe = {
   id: string;
   name: string;
+  yieldQty: number;
+  yieldUnit: Unit;
+  pax: number;
   items: SubRecipeItem[];
 };
 

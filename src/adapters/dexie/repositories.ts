@@ -37,6 +37,9 @@ export function createDexieRepositories(db: SubrecetasDexie): Repositories {
       async upsertMany(items) {
         await db.subRecipes.bulkPut(items);
       },
+      async deleteById(id) {
+        await db.subRecipes.delete(id);
+      },
       async clear() {
         await db.subRecipes.clear();
       },

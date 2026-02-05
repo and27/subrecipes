@@ -15,6 +15,9 @@ const ingredients: Ingredient[] = [
 const subRecipe: SubRecipe = {
   id: "sub-1",
   name: "Masa",
+  yieldQty: 1,
+  yieldUnit: "unit",
+  pax: 1,
   items: [
     { ingredientId: "ing-1", qty: 500, unit: "g" },
     { ingredientId: "ing-2", qty: 200, unit: "ml" },

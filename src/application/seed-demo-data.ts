@@ -2,7 +2,7 @@ import type { Ingredient, Recipe, SubRecipe } from "@/domain/models";
 import type { CatalogRepositories } from "./types";
 
 const SEED_KEY = "seed_version";
-const SEED_VERSION = "2026-02-04-v0";
+const SEED_VERSION = "2026-02-05-v0";
 
 const ingredients: Ingredient[] = [
   {
@@ -59,6 +59,9 @@ const subRecipes: SubRecipe[] = [
   {
     id: "sub-masa-basica",
     name: "Masa basica",
+    yieldQty: 1200,
+    yieldUnit: "g",
+    pax: 8,
     items: [
       { ingredientId: "ing-harina", qty: 500, unit: "g" },
       { ingredientId: "ing-azucar", qty: 200, unit: "g" },

@@ -41,10 +41,10 @@ Subo una factura, corrijo rápidamente ítems y unidades, obtengo **$/unidad bas
 
 ### EPIC 3 — Corrección + normalización a unidad base
 
-- [ ] Tabla editable (description, qty, unit, line_total)
-- [ ] Normalización: mapear a ingrediente existente / crear nuevo
-- [ ] Selección de base unit por ingrediente
-- [ ] Cálculo y persistencia: `price_per_base_unit`
+- [x] Tabla editable (description, qty, unit, line_total)
+- [x] Normalización: mapear a ingrediente existente / crear nuevo
+- [x] Selección de base unit por ingrediente
+- [x] Cálculo y persistencia: `price_per_base_unit`
 
 ### EPIC 4 — Persistencia offline (Dexie / IndexedDB)
 
@@ -69,6 +69,13 @@ Subo una factura, corrijo rápidamente ítems y unidades, obtengo **$/unidad bas
 - [ ] Seed: 1 factura + 5–10 ingredientes + 1 subreceta + 1 receta
 - [ ] Validación end-to-end: nueva factura cambia costos
 - [ ] “Modo demo”: navegación limpia, errores claros, sin data rota
+
+### EPIC 7.5 — Integración OpenAI (OCR + LLM)
+
+- [ ] Reemplazar mock de OCR por proveedor real (OpenAI/vision)
+- [ ] Reemplazar mock de parseo por LLM real con schema estricto
+- [ ] Manejo de errores, costos y timeouts
+- [ ] Logs de trazas y flags de confianza
 
 ### EPIC 8 — UX mínima
 
