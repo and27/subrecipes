@@ -379,6 +379,12 @@ export function SubRecipesListView() {
             </label>
           </div>
           <div className="pt-2" />
+          <div className="text-sm text-muted">
+            <span>Valor unitario</span>
+            <span className="ml-2 font-semibold text-text">
+              {unitCost !== null ? formatCurrency(unitCost) : "-"}
+            </span>
+          </div>
 
           <div className="rounded-2xl border border-border">
             <div className="flex items-center justify-between border-b border-border px-4 py-3 text-sm font-semibold text-text">
@@ -399,8 +405,29 @@ export function SubRecipesListView() {
                 return (
                   <div
                     key={`item-${index}`}
-                    className="grid gap-3 px-4 py-3 md:grid-cols-[2fr_1fr_1fr_1fr_auto]"
+                    className="grid gap-3 px-4 py-3 md:grid-cols-[auto_2fr_1fr_1fr_1fr]"
                   >
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleRemoveItem(index)}
+                      className="h-9 w-9 p-0"
+                      aria-label="Quitar ingrediente"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M18 6L6 18" />
+                        <path d="M6 6l12 12" />
+                      </svg>
+                    </Button>
                     <select
                       value={item.ingredientId}
                       onChange={(event) =>
@@ -432,13 +459,6 @@ export function SubRecipesListView() {
                     <div className="flex items-center text-sm text-muted">
                       {total !== null ? formatCurrency(total) : "-"}
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleRemoveItem(index)}
-                    >
-                      Quitar
-                    </Button>
                   </div>
                 );
               })}
@@ -449,12 +469,6 @@ export function SubRecipesListView() {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span>Total materia prima</span>
               <span className="font-semibold text-text">{formatCurrency(totalCost)}</span>
-            </div>
-            <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
-              <span>Valor unitario</span>
-              <span className="font-semibold text-text">
-                {unitCost !== null ? formatCurrency(unitCost) : "-"}
-              </span>
             </div>
           </div>
 
