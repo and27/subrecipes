@@ -529,6 +529,10 @@ export function RecipesListView() {
                 </Button>
               </div>
             </div>
+            <div className="border-b border-border bg-surface-alt/60 px-4 py-2 text-xs text-muted">
+              Nota: la receta solo puede incluir ingredientes y subrecetas (max
+              profundidad 2).
+            </div>
             <div className="divide-y divide-border">
               {draft.items.map((item, index) => {
                 const resolved = resolveDraftItem(
