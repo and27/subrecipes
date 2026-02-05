@@ -65,6 +65,7 @@ export function InvoiceUploadView() {
     let active = true;
 
     const loadIngredients = async () => {
+      await appServices.ensureDemoSeed();
       const snapshot = await appServices.getCatalogSnapshot();
       if (!active) return;
       setIngredientOptions(snapshot.ingredients);
