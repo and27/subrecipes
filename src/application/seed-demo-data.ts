@@ -2,38 +2,44 @@ import type { Ingredient, Recipe, SubRecipe } from "@/domain/models";
 import type { CatalogRepositories } from "./types";
 
 const SEED_KEY = "seed_version";
-const SEED_VERSION = "2026-02-05-v1";
+const SEED_VERSION = "2026-02-05-v2";
 
 const ingredients: Ingredient[] = [
   {
-    id: "ing-harina",
-    name: "Harina 000",
-    baseUnit: "g",
-    pricePerBaseUnit: 0.0025,
-  },
-  {
-    id: "ing-azucar",
-    name: "Azucar",
-    baseUnit: "g",
-    pricePerBaseUnit: 0.0022,
-  },
-  {
-    id: "ing-manteca",
-    name: "Manteca",
-    baseUnit: "g",
-    pricePerBaseUnit: 0.01,
-  },
-  {
-    id: "ing-leche",
-    name: "Leche",
+    id: "ing-aceite",
+    name: "Aceite vegetal",
     baseUnit: "ml",
+    pricePerBaseUnit: 0.0026,
+  },
+  {
+    id: "ing-arroz",
+    name: "Arroz",
+    baseUnit: "g",
+    pricePerBaseUnit: 0.0024,
+  },
+  {
+    id: "ing-pollo",
+    name: "Pollo pechuga",
+    baseUnit: "g",
+    pricePerBaseUnit: 0.0065,
+  },
+  {
+    id: "ing-cebolla",
+    name: "Cebolla",
+    baseUnit: "g",
     pricePerBaseUnit: 0.0012,
   },
   {
-    id: "ing-huevos",
-    name: "Huevos",
-    baseUnit: "unit",
-    pricePerBaseUnit: 30,
+    id: "ing-pimiento",
+    name: "Pimiento",
+    baseUnit: "g",
+    pricePerBaseUnit: 0.003,
+  },
+  {
+    id: "ing-ajo",
+    name: "Ajo",
+    baseUnit: "g",
+    pricePerBaseUnit: 0.0055,
   },
   {
     id: "ing-sal",
@@ -42,58 +48,81 @@ const ingredients: Ingredient[] = [
     pricePerBaseUnit: 0.0008,
   },
   {
-    id: "ing-levadura",
-    name: "Levadura",
+    id: "ing-pimienta",
+    name: "Pimienta",
     baseUnit: "g",
-    pricePerBaseUnit: 0.02,
+    pricePerBaseUnit: 0.012,
   },
   {
-    id: "ing-chocolate",
-    name: "Chocolate",
+    id: "ing-arvejas",
+    name: "Arvejas",
     baseUnit: "g",
-    pricePerBaseUnit: 0.015,
+    pricePerBaseUnit: 0.0032,
+  },
+  {
+    id: "ing-caldo",
+    name: "Caldo de pollo",
+    baseUnit: "ml",
+    pricePerBaseUnit: 0.0013,
   },
 ];
 
 const subRecipes: SubRecipe[] = [
   {
-    id: "sub-masa-basica",
-    name: "Masa basica",
-    yieldQty: 1200,
+    id: "sub-sofrito",
+    name: "Sofrito base",
+    yieldQty: 600,
     yieldUnit: "g",
-    pax: 8,
+    pax: 6,
     items: [
-      { ingredientId: "ing-harina", qty: 500, unit: "g" },
-      { ingredientId: "ing-azucar", qty: 200, unit: "g" },
-      { ingredientId: "ing-manteca", qty: 200, unit: "g" },
-      { ingredientId: "ing-huevos", qty: 3, unit: "unit" },
-      { ingredientId: "ing-leche", qty: 150, unit: "ml" },
-      { ingredientId: "ing-sal", qty: 4, unit: "g" },
-      { ingredientId: "ing-levadura", qty: 6, unit: "g" },
+      { ingredientId: "ing-cebolla", qty: 300, unit: "g" },
+      { ingredientId: "ing-pimiento", qty: 200, unit: "g" },
+      { ingredientId: "ing-ajo", qty: 30, unit: "g" },
+      { ingredientId: "ing-aceite", qty: 50, unit: "ml" },
+      { ingredientId: "ing-sal", qty: 5, unit: "g" },
+      { ingredientId: "ing-pimienta", qty: 2, unit: "g" },
     ],
   },
 ];
 
 const recipes: Recipe[] = [
   {
-    id: "rec-torta-simple",
-    name: "Torta simple",
-    yieldQty: 1,
-    yieldUnit: "unit",
-    pax: 8,
+    id: "rec-arroz-pollo",
+    name: "Arroz con pollo",
+    yieldQty: 2500,
+    yieldUnit: "g",
+    pax: 6,
     priceNet: 18,
     items: [
       {
         kind: "subrecipe",
-        subRecipeId: "sub-masa-basica",
+        subRecipeId: "sub-sofrito",
         qty: 1,
         unit: "unit",
       },
       {
         kind: "ingredient",
-        ingredientId: "ing-chocolate",
-        qty: 120,
+        ingredientId: "ing-arroz",
+        qty: 600,
         unit: "g",
+      },
+      {
+        kind: "ingredient",
+        ingredientId: "ing-pollo",
+        qty: 800,
+        unit: "g",
+      },
+      {
+        kind: "ingredient",
+        ingredientId: "ing-arvejas",
+        qty: 200,
+        unit: "g",
+      },
+      {
+        kind: "ingredient",
+        ingredientId: "ing-caldo",
+        qty: 1000,
+        unit: "ml",
       },
     ],
   },
