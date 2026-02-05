@@ -543,7 +543,7 @@ export function RecipesListView() {
                 return (
                   <div
                     key={`item-${index}`}
-                    className="grid gap-3 px-4 py-3 md:grid-cols-[auto_1.4fr_0.9fr_0.7fr_0.9fr_0.6fr]"
+                    className="grid gap-3 px-4 py-3 md:grid-cols-[auto_auto_1.6fr_0.9fr_0.7fr_0.9fr_0.6fr]"
                   >
                     <Button
                       size="sm"
@@ -566,19 +566,23 @@ export function RecipesListView() {
                         <path d="M6 6l12 12" />
                       </svg>
                     </Button>
-                    <select
-                      value={item.kind}
-                      onChange={(event) =>
-                        updateItem(index, {
-                          kind: event.target.value as DraftItem["kind"],
-                          refId: "",
-                        })
-                      }
-                      className="w-full rounded-xl border border-border bg-surface-alt px-2 py-2 text-sm text-text"
-                    >
-                      <option value="ingredient">Ingrediente</option>
-                      <option value="subrecipe">Subreceta</option>
-                    </select>
+                    <div className="flex items-center gap-2 text-xs font-semibold uppercase text-muted">
+                      {item.kind === "ingredient" ? (
+                        <>
+                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-border bg-surface-alt/80 text-[11px]">
+                            Ing
+                          </span>
+                          <span>Ingrediente</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-border bg-surface-alt/80 text-[11px]">
+                            Sub
+                          </span>
+                          <span>Subreceta</span>
+                        </>
+                      )}
+                    </div>
                     <select
                       value={item.refId}
                       onChange={(event) =>
@@ -627,6 +631,14 @@ export function RecipesListView() {
 
           <div className="rounded-2xl border border-border bg-surface-alt/60 px-4 py-3 text-sm text-muted">
             <div className="flex flex-wrap items-center justify-between gap-2">
+              <span>PVN (precio venta neto)</span>
+              <span className="font-semibold text-text">
+                {Number.isFinite(priceNetValue)
+                  ? formatCurrency(priceNetValue)
+                  : formatCurrency(0)}
+              </span>
+            </div>
+            <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
               <span>Total materia prima</span>
               <span className="font-semibold text-text">
                 {formatCurrency(draftTotals.total)}
