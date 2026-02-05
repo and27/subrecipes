@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type { Unit } from "@/domain/units";
 import type { SubRecipe } from "@/domain/models";
@@ -50,6 +50,7 @@ function formatCurrency(value: number) {
 
 export function SubRecipesListView() {
   const { loading, error, snapshot, refresh } = useCatalogData();
+  const [costById, setCostById] = useState<Record<string, number>>({});
   const [draft, setDraft] = useState<DraftSubRecipe>(emptyDraft);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
@@ -80,6 +81,30 @@ export function SubRecipesListView() {
     if (!Number.isFinite(baseQty) || baseQty <= 0) return null;
     return totalCost / baseQty;
   }, [draft.yieldQty, draft.yieldUnit, totalCost]);
+
+  async function loadCosts() {
+    if (subRecipes.length === 0) {
+      setCostById({});
+      return;
+    }
+
+    const entries = await Promise.all(
+      subRecipes.map(async (subRecipe) => {
+        try {
+          const total = await appServices.calculateSubRecipeCostById(subRecipe.id);
+          return [subRecipe.id, total] as const;
+        } catch {
+          return [subRecipe.id, 0] as const;
+        }
+      })
+    );
+
+    setCostById(Object.fromEntries(entries));
+  }
+
+  useEffect(() => {
+    void loadCosts();
+  }, [subRecipes]);
 
   function resetDraft() {
     setDraft(emptyDraft);
@@ -187,6 +212,7 @@ export function SubRecipesListView() {
       setIsSaving(true);
       await appServices.saveSubRecipes([subRecipe]);
       await refresh();
+      await loadCosts();
       setSaveMessage("Subreceta guardada.");
       setDraft((prev) => ({ ...prev, id: subRecipe.id }));
     } catch (err) {
@@ -206,6 +232,7 @@ export function SubRecipesListView() {
       setIsSaving(true);
       await appServices.deleteSubRecipe(subRecipeId);
       await refresh();
+      await loadCosts();
       if (draft.id === subRecipeId) {
         resetDraft();
       }
@@ -242,13 +269,12 @@ export function SubRecipesListView() {
           {!loading && !error && subRecipes.length > 0 && (
             <ul className="space-y-3">
               {subRecipes.map((subRecipe) => {
-                const cost = calculateSubRecipeCostPreview(
+                const cost =
+                  costById[subRecipe.id] ??
+                  calculateSubRecipeCostPreview(subRecipe, ingredientsById);
+                const unitCost = calculateSubRecipeUnitCostFromTotal(
                   subRecipe,
-                  ingredientsById,
-                );
-                const unitCost = calculateSubRecipeUnitCost(
-                  subRecipe,
-                  ingredientsById,
+                  cost,
                 );
 
                 return (
@@ -503,9 +529,9 @@ function calculateSubRecipeCostPreview(
   }, 0);
 }
 
-function calculateSubRecipeUnitCost(
+function calculateSubRecipeUnitCostFromTotal(
   subRecipe: SubRecipe,
-  ingredientsById: Map<string, { pricePerBaseUnit: number }>,
+  total: number,
 ): number | null {
   if (!Number.isFinite(subRecipe.yieldQty) || subRecipe.yieldQty <= 0) {
     return null;
@@ -514,7 +540,6 @@ function calculateSubRecipeUnitCost(
   if (!Number.isFinite(baseQty) || baseQty <= 0) {
     return null;
   }
-  const total = calculateSubRecipeCostPreview(subRecipe, ingredientsById);
   return total / baseQty;
 }
 
