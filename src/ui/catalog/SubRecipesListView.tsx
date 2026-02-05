@@ -301,7 +301,7 @@ export function SubRecipesListView() {
         <CardHeader>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <CardTitle>Editar subreceta</CardTitle>
+              <CardTitle>{draft.name ? draft.name : "Nueva subreceta"}</CardTitle>
               <CardDescription>
                 Define el rendimiento, PAX y los ingredientes.
               </CardDescription>
@@ -326,8 +326,13 @@ export function SubRecipesListView() {
                 className="w-full rounded-xl border border-border bg-surface-alt px-3 py-2 text-sm text-text"
               />
             </label>
-            <label className="space-y-2 text-sm text-muted">
-              <span className="text-xs font-semibold uppercase text-muted">PAX</span>
+          </div>
+
+          <label className="space-y-2 text-sm text-muted">
+            <span className="text-xs font-semibold uppercase text-muted">
+              PAX, cantidad total y unidad
+            </span>
+            <div className="grid gap-2 sm:grid-cols-[0.8fr_1.2fr_0.8fr]">
               <input
                 type="number"
                 min="0"
@@ -337,15 +342,8 @@ export function SubRecipesListView() {
                   setDraft((prev) => ({ ...prev, pax: event.target.value }))
                 }
                 className="w-full rounded-xl border border-border bg-surface-alt px-3 py-2 text-sm text-text"
+                placeholder="PAX"
               />
-            </label>
-          </div>
-
-          <label className="space-y-2 text-sm text-muted">
-            <span className="text-xs font-semibold uppercase text-muted">
-              Cantidad total y unidad
-            </span>
-            <div className="grid gap-2 sm:grid-cols-[1.2fr_0.8fr]">
               <input
                 type="number"
                 min="0"
@@ -355,6 +353,7 @@ export function SubRecipesListView() {
                   setDraft((prev) => ({ ...prev, yieldQty: event.target.value }))
                 }
                 className="w-full rounded-xl border border-border bg-surface-alt px-3 py-2 text-sm text-text"
+                placeholder="Cantidad"
               />
               <select
                 value={draft.yieldUnit}
@@ -374,6 +373,7 @@ export function SubRecipesListView() {
                 <option value="unit">unit</option>
               </select>
             </div>
+            <div className="pt-2" />
           </label>
 
           <div className="rounded-2xl border border-border">
