@@ -1,70 +1,18 @@
+import { Buffer } from "buffer";
 import { NextResponse } from "next/server";
 import {
   isParseInvoiceRequestBody,
-  type ParseInvoiceResponse,
+  parseInvoiceResponse,
 } from "@/domain/invoice-parse";
+import { getInvoiceParser } from "@/composition/invoice-parser";
+import type { InvoiceParserInput } from "@/ports/invoice-parser";
+import sharp from "sharp";
 
-function buildMockResponse(fileName: string): ParseInvoiceResponse {
-  const lowered = fileName.toLowerCase();
-  const lowConfidence =
-    lowered.includes("blurry") ||
-    lowered.includes("blur") ||
-    lowered.includes("ilegible") ||
-    lowered.includes("oscura");
+export const runtime = "nodejs";
 
-  if (lowConfidence) {
-    return {
-      items: [
-        {
-          raw_description: "Harina (lectura parcial)",
-          line_total: 14.5,
-          confidence: 0.48,
-        },
-        {
-          raw_description: "Leche (texto incompleto)",
-          line_total: 8.9,
-          confidence: 0.41,
-        },
-      ],
-      confidence: 0.44,
-      low_confidence: true,
-      warnings: [
-        "Calidad de imagen baja. Se recomienda subir una foto mas clara.",
-      ],
-    };
-  }
-
-  return {
-    items: [
-      {
-        raw_description: "Harina 000 x 1kg",
-        line_total: 14.5,
-        qty: 1,
-        unit: "kg",
-        confidence: 0.94,
-      },
-      {
-        raw_description: "Azucar x 1kg",
-        line_total: 13.2,
-        qty: 1,
-        unit: "kg",
-        confidence: 0.92,
-      },
-      {
-        raw_description: "Leche entera x 1L",
-        line_total: 8.9,
-        qty: 1,
-        unit: "l",
-        confidence: 0.9,
-      },
-    ],
-    confidence: 0.9,
-    low_confidence: false,
-    warnings: [],
-  };
-}
-
-async function readFileNameFromRequest(request: Request): Promise<string | null> {
+async function readInputFromRequest(
+  request: Request
+): Promise<InvoiceParserInput | null> {
   const contentType = request.headers.get("content-type") ?? "";
 
   if (contentType.includes("multipart/form-data")) {
@@ -75,7 +23,48 @@ async function readFileNameFromRequest(request: Request): Promise<string | null>
       return null;
     }
 
-    return file.name || "factura.jpg";
+    const arrayBuffer = await file.arrayBuffer();
+    const originalBuffer = Buffer.from(arrayBuffer);
+    const image = sharp(originalBuffer);
+    const metadata = await image.metadata();
+    const originalWidth = metadata.width ?? 0;
+    const originalHeight = metadata.height ?? 0;
+
+    const maxSize = 1200;
+    const shouldResize =
+      (originalWidth && originalWidth > maxSize) ||
+      (originalHeight && originalHeight > maxSize);
+
+    const processedBuffer = await (shouldResize
+      ? image
+          .resize({
+            width: maxSize,
+            height: maxSize,
+            fit: "inside",
+            withoutEnlargement: true,
+          })
+          .jpeg({ quality: 80 })
+          .toBuffer()
+      : image.jpeg({ quality: 80 }).toBuffer());
+
+    const processedMeta = await sharp(processedBuffer).metadata();
+    const processedWidth = processedMeta.width ?? originalWidth;
+    const processedHeight = processedMeta.height ?? originalHeight;
+
+    const base64 = processedBuffer.toString("base64");
+    const imageDataUrl = `data:image/jpeg;base64,${base64}`;
+
+    return {
+      fileName: file.name || "factura.jpg",
+      imageDataUrl,
+      metadata: {
+        originalWidth,
+        originalHeight,
+        processedWidth,
+        processedHeight,
+        resized: shouldResize,
+      },
+    };
   }
 
   if (contentType.includes("application/json")) {
@@ -84,7 +73,7 @@ async function readFileNameFromRequest(request: Request): Promise<string | null>
       return null;
     }
 
-    return payload.fileName.trim();
+    return { fileName: payload.fileName.trim() };
   }
 
   return null;
@@ -92,9 +81,8 @@ async function readFileNameFromRequest(request: Request): Promise<string | null>
 
 export async function POST(request: Request) {
   try {
-    const fileName = await readFileNameFromRequest(request);
-
-    if (!fileName) {
+    const input = await readInputFromRequest(request);
+    if (!input) {
       return NextResponse.json(
         {
           error:
@@ -104,7 +92,16 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json(buildMockResponse(fileName), { status: 200 });
+    const parser = getInvoiceParser();
+    const response = await parser.parse(input);
+    const validated = parseInvoiceResponse(response);
+    return NextResponse.json(
+      {
+        ...validated,
+        metadata: input.metadata ?? validated.metadata,
+      },
+      { status: 200 }
+    );
   } catch {
     return NextResponse.json(
       { error: "No se pudo procesar la solicitud de parseo." },

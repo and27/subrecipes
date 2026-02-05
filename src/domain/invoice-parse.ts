@@ -15,6 +15,13 @@ export type ParseInvoiceResponse = {
   confidence: number;
   low_confidence: boolean;
   warnings: string[];
+  metadata?: {
+    originalWidth?: number;
+    originalHeight?: number;
+    processedWidth?: number;
+    processedHeight?: number;
+    resized?: boolean;
+  };
 };
 
 export type ParseInvoiceErrorResponse = {
