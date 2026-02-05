@@ -131,16 +131,9 @@ export function ParsedItemsTable({
                     className="border-t border-border"
                   >
                     <td className="px-4 py-3 text-text">
-                      <input
-                        value={item.raw_description}
-                        onChange={(event) =>
-                          onItemChange(index, {
-                            ...item,
-                            raw_description: event.target.value,
-                          })
-                        }
-                        className="w-full rounded-lg border border-border bg-surface-alt px-2 py-1 text-sm text-text"
-                      />
+                      <div className="rounded-lg border border-border bg-surface-alt px-2 py-1 text-sm text-text">
+                        {item.raw_description}
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-text">
                       <input
