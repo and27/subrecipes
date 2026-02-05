@@ -44,6 +44,10 @@ export type RecipeItem =
 export type Recipe = {
   id: string;
   name: string;
+  yieldQty: number;
+  yieldUnit: Unit;
   items: RecipeItem[];
   pax: number;
+  priceNet: number;
+  photoUrl?: string;
 };
