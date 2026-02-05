@@ -4,6 +4,13 @@ export type InvoiceParserInput = {
   fileName?: string;
   imageDataUrl?: string;
   imageUrl?: string;
+  metadata?: {
+    originalWidth?: number;
+    originalHeight?: number;
+    processedWidth?: number;
+    processedHeight?: number;
+    resized?: boolean;
+  };
 };
 
 export interface InvoiceParser {

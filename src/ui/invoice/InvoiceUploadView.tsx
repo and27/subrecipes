@@ -363,6 +363,15 @@ export function InvoiceUploadView() {
           </div>
 
           <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
+            <span className="text-muted">Resolucion original</span>
+            <span className="font-medium text-text">
+              {parseResult?.metadata?.originalWidth && parseResult?.metadata?.originalHeight
+                ? `${parseResult.metadata.originalWidth}x${parseResult.metadata.originalHeight}`
+                : "-"}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
             <span className="text-muted">Fecha de carga</span>
             <span className="font-medium text-text">{formatDate(draftCreatedAt)}</span>
           </div>

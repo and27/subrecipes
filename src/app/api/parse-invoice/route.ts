@@ -6,6 +6,9 @@ import {
 } from "@/domain/invoice-parse";
 import { getInvoiceParser } from "@/composition/invoice-parser";
 import type { InvoiceParserInput } from "@/ports/invoice-parser";
+import sharp from "sharp";
+
+export const runtime = "nodejs";
 
 async function readInputFromRequest(
   request: Request
@@ -21,13 +24,46 @@ async function readInputFromRequest(
     }
 
     const arrayBuffer = await file.arrayBuffer();
-    const base64 = Buffer.from(arrayBuffer).toString("base64");
-    const mime = file.type || "image/jpeg";
-    const imageDataUrl = `data:${mime};base64,${base64}`;
+    const originalBuffer = Buffer.from(arrayBuffer);
+    const image = sharp(originalBuffer);
+    const metadata = await image.metadata();
+    const originalWidth = metadata.width ?? 0;
+    const originalHeight = metadata.height ?? 0;
+
+    const maxSize = 1200;
+    const shouldResize =
+      (originalWidth && originalWidth > maxSize) ||
+      (originalHeight && originalHeight > maxSize);
+
+    const processedBuffer = await (shouldResize
+      ? image
+          .resize({
+            width: maxSize,
+            height: maxSize,
+            fit: "inside",
+            withoutEnlargement: true,
+          })
+          .jpeg({ quality: 80 })
+          .toBuffer()
+      : image.jpeg({ quality: 80 }).toBuffer());
+
+    const processedMeta = await sharp(processedBuffer).metadata();
+    const processedWidth = processedMeta.width ?? originalWidth;
+    const processedHeight = processedMeta.height ?? originalHeight;
+
+    const base64 = processedBuffer.toString("base64");
+    const imageDataUrl = `data:image/jpeg;base64,${base64}`;
 
     return {
       fileName: file.name || "factura.jpg",
       imageDataUrl,
+      metadata: {
+        originalWidth,
+        originalHeight,
+        processedWidth,
+        processedHeight,
+        resized: shouldResize,
+      },
     };
   }
 
@@ -58,7 +94,14 @@ export async function POST(request: Request) {
 
     const parser = getInvoiceParser();
     const response = await parser.parse(input);
-    return NextResponse.json(parseInvoiceResponse(response), { status: 200 });
+    const validated = parseInvoiceResponse(response);
+    return NextResponse.json(
+      {
+        ...validated,
+        metadata: input.metadata ?? validated.metadata,
+      },
+      { status: 200 }
+    );
   } catch {
     return NextResponse.json(
       { error: "No se pudo procesar la solicitud de parseo." },
