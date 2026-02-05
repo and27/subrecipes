@@ -328,11 +328,9 @@ export function SubRecipesListView() {
             </label>
           </div>
 
-          <label className="space-y-2 text-sm text-muted">
-            <span className="text-xs font-semibold uppercase text-muted">
-              PAX, cantidad total y unidad
-            </span>
-            <div className="grid gap-2 sm:grid-cols-[0.8fr_1.2fr_0.8fr]">
+          <div className="grid gap-2 sm:grid-cols-[0.8fr_1.2fr_0.8fr]">
+            <label className="space-y-2 text-sm text-muted">
+              <span className="text-xs font-semibold uppercase text-muted">PAX</span>
               <input
                 type="number"
                 min="0"
@@ -342,8 +340,12 @@ export function SubRecipesListView() {
                   setDraft((prev) => ({ ...prev, pax: event.target.value }))
                 }
                 className="w-full rounded-xl border border-border bg-surface-alt px-3 py-2 text-sm text-text"
-                placeholder="PAX"
               />
+            </label>
+            <label className="space-y-2 text-sm text-muted">
+              <span className="text-xs font-semibold uppercase text-muted">
+                Cantidad total
+              </span>
               <input
                 type="number"
                 min="0"
@@ -353,8 +355,10 @@ export function SubRecipesListView() {
                   setDraft((prev) => ({ ...prev, yieldQty: event.target.value }))
                 }
                 className="w-full rounded-xl border border-border bg-surface-alt px-3 py-2 text-sm text-text"
-                placeholder="Cantidad"
               />
+            </label>
+            <label className="space-y-2 text-sm text-muted">
+              <span className="text-xs font-semibold uppercase text-muted">Unidad</span>
               <select
                 value={draft.yieldUnit}
                 onChange={(event) =>
@@ -372,9 +376,9 @@ export function SubRecipesListView() {
                 <option value="l">l</option>
                 <option value="unit">unit</option>
               </select>
-            </div>
-            <div className="pt-2" />
-          </label>
+            </label>
+          </div>
+          <div className="pt-2" />
 
           <div className="rounded-2xl border border-border">
             <div className="flex items-center justify-between border-b border-border px-4 py-3 text-sm font-semibold text-text">
