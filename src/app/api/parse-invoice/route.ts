@@ -106,10 +106,10 @@ export async function POST(request: Request) {
       },
       { status: 200 }
     );
-  } catch {
-    return NextResponse.json(
-      { error: "No se pudo procesar la solicitud de parseo." },
-      { status: 400 }
-    );
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "No se pudo procesar la solicitud de parseo.";
+    console.error("[invoice-parser] error", error);
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }
