@@ -197,6 +197,18 @@ export function InvoiceUploadView() {
     );
   }
 
+  function handleRemoveItem(index: number) {
+    setCorrectedItems((previous) =>
+      previous.filter((_, itemIndex) => itemIndex !== index)
+    );
+    setIngredientSelections((previous) =>
+      previous.filter((_, itemIndex) => itemIndex !== index)
+    );
+    setPendingOverwrite([]);
+    setSaveMessage(null);
+    setSaveError(null);
+  }
+
   const ingredientMatches = useMemo(
     () =>
       ingredientSelections.map((name) =>
@@ -428,6 +440,7 @@ export function InvoiceUploadView() {
         ingredientSelections={ingredientSelections}
         ingredientMatches={ingredientMatches}
         onIngredientChange={handleIngredientChange}
+        onRemoveItem={handleRemoveItem}
         onSave={handleSaveCatalog}
         canSave={canSave}
         isSaving={isSaving}

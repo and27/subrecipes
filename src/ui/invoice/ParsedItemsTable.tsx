@@ -21,6 +21,7 @@ type ParsedItemsTableProps = {
   ingredientSelections: string[];
   ingredientMatches: boolean[];
   onIngredientChange: (index: number, nextName: string) => void;
+  onRemoveItem: (index: number) => void;
   onSave: () => void;
   canSave: boolean;
   isSaving: boolean;
@@ -47,6 +48,7 @@ export function ParsedItemsTable({
   ingredientSelections,
   ingredientMatches,
   onIngredientChange,
+  onRemoveItem,
   onSave,
   canSave,
   isSaving,
@@ -122,6 +124,7 @@ export function ParsedItemsTable({
                   <th className="px-4 py-3 font-medium">Total (sin IVA)</th>
                   <th className="px-4 py-3 font-medium">Confianza</th>
                   <th className="px-4 py-3 font-medium">Validacion</th>
+                  <th className="px-4 py-3 font-medium"></th>
                 </tr>
               </thead>
               <tbody>
@@ -219,6 +222,16 @@ export function ParsedItemsTable({
                       ) : (
                         <span className="text-xs text-success">OK</span>
                       )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => onRemoveItem(index)}
+                        aria-label="Eliminar item"
+                      >
+                        Eliminar
+                      </Button>
                     </td>
                   </tr>
                 ))}
