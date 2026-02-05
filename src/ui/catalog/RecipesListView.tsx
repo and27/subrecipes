@@ -612,7 +612,7 @@ export function RecipesListView() {
                         updateItem(index, { qty: event.target.value })
                       }
                       className="w-full rounded-xl border border-border bg-surface-alt px-2 py-2 text-sm text-text"
-                      placeholder="Cantidad"
+                      placeholder="0"
                     />
                     <div className="flex items-center justify-end text-sm text-muted tabular-nums">
                       {resolved?.unit ?? "-"}
