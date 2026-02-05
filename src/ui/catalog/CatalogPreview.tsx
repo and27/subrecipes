@@ -14,8 +14,10 @@ import {
   CardTitle,
 } from "@/ui/components/ui/card";
 
-function formatNumber(value: number) {
-  return new Intl.NumberFormat("es-AR", {
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("es-EC", {
+    style: "currency",
+    currency: "USD",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value);
@@ -118,7 +120,7 @@ export function CatalogPreview() {
                     {ingredient.name}
                   </span>
                   <span className="text-muted">
-                    {formatNumber(ingredient.pricePerBaseUnit)} / {ingredient.baseUnit}
+                    {formatCurrency(ingredient.pricePerBaseUnit)} / {ingredient.baseUnit}
                   </span>
                 </div>
               ))}
@@ -150,13 +152,13 @@ export function CatalogPreview() {
                 <div className="flex items-center justify-between">
                   <span className="text-muted">Costo total</span>
                   <span className="font-medium">
-                    {formatNumber(recipeCost.total)}
+                    {formatCurrency(recipeCost.total)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted">Costo por porcion</span>
                   <span className="font-medium">
-                    {formatNumber(recipeCost.perPax)}
+                    {formatCurrency(recipeCost.perPax)}
                   </span>
                 </div>
               </div>
@@ -174,5 +176,4 @@ export function CatalogPreview() {
     </section>
   );
 }
-
 

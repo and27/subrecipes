@@ -4,7 +4,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/ui/
 import { useCatalogData } from "@/ui/catalog/use-catalog-data";
 
 function formatNumber(value: number) {
-  return new Intl.NumberFormat("es-AR", {
+  return new Intl.NumberFormat("es-EC", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("es-EC", {
+    style: "currency",
+    currency: "USD",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value);
@@ -56,7 +65,7 @@ export function IngredientsTableView() {
                     <td className="px-4 py-3 font-medium text-text">{ingredient.name}</td>
                     <td className="px-4 py-3 text-muted">
                       {ingredient.purchasePriceExVat !== undefined
-                        ? formatNumber(ingredient.purchasePriceExVat)
+                        ? formatCurrency(ingredient.purchasePriceExVat)
                         : "-"}
                     </td>
                     <td className="px-4 py-3 text-muted">
@@ -69,12 +78,12 @@ export function IngredientsTableView() {
                     </td>
                     <td className="px-4 py-3 text-muted">
                       {ingredient.purchaseUnitCost !== undefined
-                        ? formatNumber(ingredient.purchaseUnitCost)
+                        ? formatCurrency(ingredient.purchaseUnitCost)
                         : "-"}
                     </td>
                     <td className="px-4 py-3 text-muted">{ingredient.baseUnit}</td>
                     <td className="px-4 py-3 text-muted">
-                      {formatNumber(ingredient.pricePerBaseUnit)}
+                      {formatCurrency(ingredient.pricePerBaseUnit)}
                     </td>
                   </tr>
                 ))}
@@ -86,4 +95,3 @@ export function IngredientsTableView() {
     </Card>
   );
 }
-

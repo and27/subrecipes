@@ -17,12 +17,12 @@ function buildMockResponse(fileName: string): ParseInvoiceResponse {
       items: [
         {
           raw_description: "Harina (lectura parcial)",
-          line_total: 1450,
+          line_total: 14.5,
           confidence: 0.48,
         },
         {
           raw_description: "Leche (texto incompleto)",
-          line_total: 890,
+          line_total: 8.9,
           confidence: 0.41,
         },
       ],
@@ -38,21 +38,21 @@ function buildMockResponse(fileName: string): ParseInvoiceResponse {
     items: [
       {
         raw_description: "Harina 000 x 1kg",
-        line_total: 1450,
+        line_total: 14.5,
         qty: 1,
         unit: "kg",
         confidence: 0.94,
       },
       {
         raw_description: "Azucar x 1kg",
-        line_total: 1320,
+        line_total: 13.2,
         qty: 1,
         unit: "kg",
         confidence: 0.92,
       },
       {
         raw_description: "Leche entera x 1L",
-        line_total: 890,
+        line_total: 8.9,
         qty: 1,
         unit: "l",
         confidence: 0.9,
