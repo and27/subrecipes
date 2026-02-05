@@ -28,7 +28,10 @@ const subRecipe: SubRecipe = {
 const recipe: Recipe = {
   id: "rec-1",
   name: "Torta",
+  yieldQty: 1,
+  yieldUnit: "unit",
   pax: 8,
+  priceNet: 10,
   items: [
     { kind: "subrecipe", subRecipeId: "sub-1", qty: 1, unit: "unit" },
     { kind: "ingredient", ingredientId: "ing-1", qty: 100, unit: "g" },

@@ -2,7 +2,7 @@ import type { Ingredient, Recipe, SubRecipe } from "@/domain/models";
 import type { CatalogRepositories } from "./types";
 
 const SEED_KEY = "seed_version";
-const SEED_VERSION = "2026-02-05-v0";
+const SEED_VERSION = "2026-02-05-v1";
 
 const ingredients: Ingredient[] = [
   {
@@ -78,7 +78,10 @@ const recipes: Recipe[] = [
   {
     id: "rec-torta-simple",
     name: "Torta simple",
+    yieldQty: 1,
+    yieldUnit: "unit",
     pax: 8,
+    priceNet: 18,
     items: [
       {
         kind: "subrecipe",
