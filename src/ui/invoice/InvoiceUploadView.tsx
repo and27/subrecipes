@@ -336,7 +336,7 @@ export function InvoiceUploadView() {
             disabled={!selectedFile || isParsing}
             className="w-full sm:w-auto"
           >
-            {isParsing ? "Procesando factura..." : "Ejecutar parseo mock"}
+            {isParsing ? "Procesando factura..." : "Procesar factura"}
           </Button>
 
         </CardContent>

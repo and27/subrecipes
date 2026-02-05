@@ -81,6 +81,7 @@ async function readInputFromRequest(
 
 export async function POST(request: Request) {
   try {
+    const provider = process.env.INVOICE_PARSER_PROVIDER ?? "mock";
     const input = await readInputFromRequest(request);
     if (!input) {
       return NextResponse.json(
@@ -93,8 +94,11 @@ export async function POST(request: Request) {
     }
 
     const parser = getInvoiceParser();
+    const startedAt = Date.now();
     const response = await parser.parse(input);
     const validated = parseInvoiceResponse(response);
+    const latencyMs = Date.now() - startedAt;
+    console.log(`[invoice-parser] provider=${provider} latency_ms=${latencyMs}`);
     return NextResponse.json(
       {
         ...validated,
@@ -102,10 +106,10 @@ export async function POST(request: Request) {
       },
       { status: 200 }
     );
-  } catch {
-    return NextResponse.json(
-      { error: "No se pudo procesar la solicitud de parseo." },
-      { status: 400 }
-    );
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "No se pudo procesar la solicitud de parseo.";
+    console.error("[invoice-parser] error", error);
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }
