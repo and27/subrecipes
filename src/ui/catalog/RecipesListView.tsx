@@ -7,8 +7,10 @@ import { appServices } from "@/composition/root";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/ui/components/ui/card";
 import { useCatalogData } from "@/ui/catalog/use-catalog-data";
 
-function formatNumber(value: number) {
-  return new Intl.NumberFormat("es-AR", {
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("es-EC", {
+    style: "currency",
+    currency: "USD",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value);
@@ -82,10 +84,10 @@ export function RecipesListView() {
 
                   <div className="mt-2 flex flex-wrap gap-4 text-xs text-muted">
                     <span>
-                      Costo total: {cost ? formatNumber(cost.total) : "calculando..."}
+                      Costo total: {cost ? formatCurrency(cost.total) : "calculando..."}
                     </span>
                     <span>
-                      Costo por porcion: {cost ? formatNumber(cost.perPax) : "calculando..."}
+                      Costo por porcion: {cost ? formatCurrency(cost.perPax) : "calculando..."}
                     </span>
                   </div>
                 </li>
@@ -97,5 +99,4 @@ export function RecipesListView() {
     </Card>
   );
 }
-
 

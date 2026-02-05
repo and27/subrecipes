@@ -88,13 +88,11 @@ export function ParsedItemsTable({
             <table className="min-w-full text-sm">
               <thead className="bg-surface-alt/70 text-left text-muted">
                 <tr>
-                  <th className="px-4 py-3 font-medium">Descripcion</th>
+                  <th className="px-4 py-3 font-medium">Descripcion (OCR)</th>
                   <th className="px-4 py-3 font-medium">Ingrediente</th>
                   <th className="px-4 py-3 font-medium">Cantidad</th>
                   <th className="px-4 py-3 font-medium">Unidad</th>
-                  <th className="px-4 py-3 font-medium">Total</th>
-                  <th className="px-4 py-3 font-medium">Base qty</th>
-                  <th className="px-4 py-3 font-medium">Base unit</th>
+                  <th className="px-4 py-3 font-medium">Total (sin IVA)</th>
                   <th className="px-4 py-3 font-medium">Confianza</th>
                   <th className="px-4 py-3 font-medium">Validacion</th>
                 </tr>
@@ -149,6 +147,9 @@ export function ParsedItemsTable({
                         }}
                         className="w-24 rounded-lg border border-border bg-surface-alt px-2 py-1 text-sm text-text"
                       />
+                      <p className="mt-1 text-[11px] text-muted">
+                        Cantidad base: {renderBaseQty(item)}
+                      </p>
                     </td>
                     <td className="px-4 py-3 text-muted">
                       <select
@@ -168,6 +169,9 @@ export function ParsedItemsTable({
                         <option value="l">l</option>
                         <option value="unit">unit</option>
                       </select>
+                      <p className="mt-1 text-[11px] text-muted">
+                        Unidad base: {renderBaseUnit(item)}
+                      </p>
                     </td>
                     <td className="px-4 py-3 text-muted">
                       <input
@@ -183,12 +187,6 @@ export function ParsedItemsTable({
                         }
                         className="w-28 rounded-lg border border-border bg-surface-alt px-2 py-1 text-sm text-text"
                       />
-                    </td>
-                    <td className="px-4 py-3 text-muted">
-                      {renderBaseQty(item)}
-                    </td>
-                    <td className="px-4 py-3 text-muted">
-                      {renderBaseUnit(item)}
                     </td>
                     <td className="px-4 py-3 text-muted">
                       {formatConfidence(item.confidence)}
