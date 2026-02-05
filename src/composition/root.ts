@@ -1,6 +1,7 @@
 import { createDexieDb } from "@/adapters/dexie/db";
 import { createDexieRepositories } from "@/adapters/dexie/repositories";
 import { calculateRecipeCostById } from "@/application/calculate-recipe-cost";
+import { calculateSubRecipeCostById } from "@/application/calculate-subrecipe-cost";
 import { deleteSubRecipe } from "@/application/delete-subrecipe";
 import { saveIngredientCatalog } from "@/application/save-ingredient-catalog";
 import { saveSubRecipes } from "@/application/save-subrecipes";
@@ -15,6 +16,8 @@ export const appServices = {
   repositories,
   ensureDemoSeed: () => ensureDemoSeed(repositories),
   getCatalogSnapshot: () => getCatalogSnapshot(repositories),
+  calculateSubRecipeCostById: (subRecipeId: string) =>
+    calculateSubRecipeCostById(subRecipeId, repositories),
   calculateRecipeCostById: (recipeId: string) =>
     calculateRecipeCostById(recipeId, repositories),
   saveIngredientCatalog: (items: Ingredient[]) =>
