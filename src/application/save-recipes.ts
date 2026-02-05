@@ -8,6 +8,9 @@ export async function saveRecipes(
 ): Promise<number> {
   if (items.length === 0) return 0;
 
+  const subRecipes = await repositories.subRecipeRepository.list();
+  const subRecipeIds = new Set(subRecipes.map((item) => item.id));
+
   for (const recipe of items) {
     if (!recipe.name.trim()) {
       throw new Error("Nombre requerido.");
@@ -41,6 +44,9 @@ export async function saveRecipes(
         }
         if (item.unit !== "unit") {
           throw new Error("Subreceta solo puede expresarse en unit.");
+        }
+        if (!subRecipeIds.has(item.subRecipeId)) {
+          throw new Error("Subreceta inexistente.");
         }
       }
     }
