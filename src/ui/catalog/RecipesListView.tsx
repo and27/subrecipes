@@ -566,20 +566,20 @@ export function RecipesListView() {
                         <path d="M6 6l12 12" />
                       </svg>
                     </Button>
-                    <div className="flex items-center gap-2 text-xs font-semibold uppercase text-muted">
+                    <div className="flex items-center text-xs font-semibold uppercase text-muted">
                       {item.kind === "ingredient" ? (
                         <>
                           <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-border bg-surface-alt/80 text-[11px]">
                             Ing
                           </span>
-                          <span>Ingrediente</span>
+                          <span className="sr-only">Ingrediente</span>
                         </>
                       ) : (
                         <>
                           <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-border bg-surface-alt/80 text-[11px]">
                             Sub
                           </span>
-                          <span>Subreceta</span>
+                          <span className="sr-only">Subreceta</span>
                         </>
                       )}
                     </div>
