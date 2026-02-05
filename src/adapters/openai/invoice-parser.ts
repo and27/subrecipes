@@ -15,13 +15,13 @@ function buildSchema() {
         items: {
           type: "object",
           additionalProperties: false,
-          required: ["raw_description", "line_total"],
+          required: ["raw_description", "line_total", "qty", "unit", "confidence"],
           properties: {
             raw_description: { type: "string" },
             line_total: { type: "number" },
-            qty: { type: "number" },
-            unit: { type: "string" },
-            confidence: { type: "number" },
+            qty: { type: ["number", "null"] },
+            unit: { type: ["string", "null"] },
+            confidence: { type: ["number", "null"] },
           },
         },
       },
@@ -53,7 +53,14 @@ function buildPrompt(fileName: string) {
 }
 
 function parseJson(text: string): ParseInvoiceResponse {
-  return JSON.parse(text) as ParseInvoiceResponse;
+  const raw = JSON.parse(text) as ParseInvoiceResponse;
+  const items = raw.items.map((item) => ({
+    ...item,
+    qty: item.qty === null ? undefined : item.qty,
+    unit: item.unit === null ? undefined : item.unit,
+    confidence: item.confidence === null ? undefined : item.confidence,
+  }));
+  return { ...raw, items };
 }
 
 export function createOpenAIInvoiceParser(): InvoiceParser {
