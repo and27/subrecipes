@@ -66,4 +66,37 @@ describe("calculateRecipeCostById", () => {
       calculateRecipeCostById("rec-inexistente", repositories)
     ).rejects.toThrow(/receta inexistente/);
   });
+
+  it("falla si la receta tiene pax invalido", async () => {
+    const badRepositories: CatalogRepositories = {
+      ...repositories,
+      recipeRepository: {
+        ...repositories.recipeRepository,
+        list: async () => [
+          {
+            id: "rec-bad",
+            name: "Mala",
+            yieldQty: 1,
+            yieldUnit: "unit",
+            pax: 0,
+            priceNet: 1,
+            items: [],
+          },
+        ],
+        getById: async () => ({
+          id: "rec-bad",
+          name: "Mala",
+          yieldQty: 1,
+          yieldUnit: "unit",
+          pax: 0,
+          priceNet: 1,
+          items: [],
+        }),
+      },
+    };
+
+    await expect(
+      calculateRecipeCostById("rec-bad", badRepositories)
+    ).rejects.toThrow(/pax debe ser un numero positivo/);
+  });
 });
