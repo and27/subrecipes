@@ -45,3 +45,11 @@ This project registers a service worker (`public/sw.js`) with versioned caches.
   2. Go to `Service Workers` and unregister current worker.
   3. Go to `Storage` and clear site data.
   4. Reload the app.
+
+## Invoice Parser Provider
+
+The invoice parser can switch providers via environment variables:
+
+- `INVOICE_PARSER_PROVIDER`: `mock` (default) or `openai`
+- `INVOICE_PARSER_MODEL`: model name for OpenAI (default: `gpt-4.1-mini`)
+- `OPENAI_API_KEY`: required when provider is `openai`

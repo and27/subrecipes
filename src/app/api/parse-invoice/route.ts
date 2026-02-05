@@ -81,6 +81,7 @@ async function readInputFromRequest(
 
 export async function POST(request: Request) {
   try {
+    const provider = process.env.INVOICE_PARSER_PROVIDER ?? "mock";
     const input = await readInputFromRequest(request);
     if (!input) {
       return NextResponse.json(
@@ -93,8 +94,11 @@ export async function POST(request: Request) {
     }
 
     const parser = getInvoiceParser();
+    const startedAt = Date.now();
     const response = await parser.parse(input);
     const validated = parseInvoiceResponse(response);
+    const latencyMs = Date.now() - startedAt;
+    console.log(`[invoice-parser] provider=${provider} latency_ms=${latencyMs}`);
     return NextResponse.json(
       {
         ...validated,
