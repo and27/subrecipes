@@ -327,9 +327,25 @@ export function SubRecipesListView() {
               />
             </label>
             <label className="space-y-2 text-sm text-muted">
-              <span className="text-xs font-semibold uppercase text-muted">
-                Cantidad total
-              </span>
+              <span className="text-xs font-semibold uppercase text-muted">PAX</span>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={draft.pax}
+                onChange={(event) =>
+                  setDraft((prev) => ({ ...prev, pax: event.target.value }))
+                }
+                className="w-full rounded-xl border border-border bg-surface-alt px-3 py-2 text-sm text-text"
+              />
+            </label>
+          </div>
+
+          <label className="space-y-2 text-sm text-muted">
+            <span className="text-xs font-semibold uppercase text-muted">
+              Cantidad total y unidad
+            </span>
+            <div className="grid gap-2 sm:grid-cols-[1.2fr_0.8fr]">
               <input
                 type="number"
                 min="0"
@@ -340,9 +356,6 @@ export function SubRecipesListView() {
                 }
                 className="w-full rounded-xl border border-border bg-surface-alt px-3 py-2 text-sm text-text"
               />
-            </label>
-            <label className="space-y-2 text-sm text-muted">
-              <span className="text-xs font-semibold uppercase text-muted">Unidad</span>
               <select
                 value={draft.yieldUnit}
                 onChange={(event) =>
@@ -360,21 +373,8 @@ export function SubRecipesListView() {
                 <option value="l">l</option>
                 <option value="unit">unit</option>
               </select>
-            </label>
-            <label className="space-y-2 text-sm text-muted">
-              <span className="text-xs font-semibold uppercase text-muted">PAX</span>
-              <input
-                type="number"
-                min="0"
-                step="1"
-                value={draft.pax}
-                onChange={(event) =>
-                  setDraft((prev) => ({ ...prev, pax: event.target.value }))
-                }
-                className="w-full rounded-xl border border-border bg-surface-alt px-3 py-2 text-sm text-text"
-              />
-            </label>
-          </div>
+            </div>
+          </label>
 
           <div className="rounded-2xl border border-border">
             <div className="flex items-center justify-between border-b border-border px-4 py-3 text-sm font-semibold text-text">
