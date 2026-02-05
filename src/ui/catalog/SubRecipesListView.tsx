@@ -60,7 +60,7 @@ export function SubRecipesListView() {
 
   const ingredientsById = useMemo(
     () => new Map(ingredients.map((item) => [item.id, item])),
-    [ingredients]
+    [ingredients],
   );
 
   const totalCost = useMemo(() => {
@@ -117,14 +117,11 @@ export function SubRecipesListView() {
     }));
   }
 
-  function updateItem(
-    index: number,
-    next: Partial<DraftItem>
-  ) {
+  function updateItem(index: number, next: Partial<DraftItem>) {
     setDraft((prev) => ({
       ...prev,
       items: prev.items.map((item, itemIndex) =>
-        itemIndex === index ? { ...item, ...next } : item
+        itemIndex === index ? { ...item, ...next } : item,
       ),
     }));
   }
@@ -194,7 +191,7 @@ export function SubRecipesListView() {
       setDraft((prev) => ({ ...prev, id: subRecipe.id }));
     } catch (err) {
       setSaveError(
-        err instanceof Error ? err.message : "No se pudo guardar la subreceta."
+        err instanceof Error ? err.message : "No se pudo guardar la subreceta.",
       );
     } finally {
       setIsSaving(false);
@@ -214,7 +211,9 @@ export function SubRecipesListView() {
       }
     } catch (err) {
       setSaveError(
-        err instanceof Error ? err.message : "No se pudo eliminar la subreceta."
+        err instanceof Error
+          ? err.message
+          : "No se pudo eliminar la subreceta.",
       );
     } finally {
       setIsSaving(false);
@@ -231,7 +230,9 @@ export function SubRecipesListView() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {loading && <p className="text-sm text-muted">Cargando subrecetas...</p>}
+          {loading && (
+            <p className="text-sm text-muted">Cargando subrecetas...</p>
+          )}
           {error && <p className="text-sm text-danger">{error}</p>}
 
           {!loading && !error && subRecipes.length === 0 && (
@@ -243,11 +244,11 @@ export function SubRecipesListView() {
               {subRecipes.map((subRecipe) => {
                 const cost = calculateSubRecipeCostPreview(
                   subRecipe,
-                  ingredientsById
+                  ingredientsById,
                 );
                 const unitCost = calculateSubRecipeUnitCost(
                   subRecipe,
-                  ingredientsById
+                  ingredientsById,
                 );
 
                 return (
@@ -261,7 +262,8 @@ export function SubRecipesListView() {
                           {subRecipe.name}
                         </p>
                         <p className="text-xs text-muted">
-                          {subRecipe.yieldQty} {subRecipe.yieldUnit} • PAX {subRecipe.pax}
+                          {subRecipe.yieldQty} {subRecipe.yieldUnit} • PAX{" "}
+                          {subRecipe.pax}
                         </p>
                         <p className="text-xs text-muted">
                           Costo total: {formatCurrency(cost)}
@@ -301,23 +303,28 @@ export function SubRecipesListView() {
         <CardHeader>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <CardTitle>{draft.name ? draft.name : "Nueva subreceta"}</CardTitle>
-              <CardDescription>
-                Define el rendimiento, PAX y los ingredientes.
-              </CardDescription>
+              <CardTitle>
+                {draft.name ? draft.name : "Nueva subreceta"}
+              </CardTitle>
+              <div className="mb-2 mr-0 text-right text-xs font-semibold uppercase text-muted">
+                Valor unitario{" "}
+                {unitCost !== null ? formatCurrency(unitCost) : "-"}
+              </div>
             </div>
             <Button size="sm" variant="outline" onClick={resetDraft}>
               Nueva subreceta
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           {saveError && <p className="text-sm text-danger">{saveError}</p>}
           {saveMessage && <p className="text-sm text-success">{saveMessage}</p>}
 
           <div className="grid gap-4 md:grid-cols-2">
             <label className="space-y-2 text-sm text-muted">
-              <span className="text-xs font-semibold uppercase text-muted">Nombre</span>
+              <span className="text-xs font-semibold uppercase text-muted">
+                Nombre
+              </span>
               <input
                 value={draft.name}
                 onChange={(event) =>
@@ -328,9 +335,11 @@ export function SubRecipesListView() {
             </label>
           </div>
 
-          <div className="grid gap-2 sm:grid-cols-[0.8fr_1.2fr_0.8fr]">
+          <div className="mb-6 grid gap-2 sm:grid-cols-[0.8fr_1.2fr_0.8fr]">
             <label className="space-y-2 text-sm text-muted">
-              <span className="text-xs font-semibold uppercase text-muted">PAX</span>
+              <span className="text-xs font-semibold uppercase text-muted">
+                PAX
+              </span>
               <input
                 type="number"
                 min="0"
@@ -352,13 +361,18 @@ export function SubRecipesListView() {
                 step="any"
                 value={draft.yieldQty}
                 onChange={(event) =>
-                  setDraft((prev) => ({ ...prev, yieldQty: event.target.value }))
+                  setDraft((prev) => ({
+                    ...prev,
+                    yieldQty: event.target.value,
+                  }))
                 }
                 className="w-full rounded-xl border border-border bg-surface-alt px-3 py-2 text-sm text-text"
               />
             </label>
             <label className="space-y-2 text-sm text-muted">
-              <span className="text-xs font-semibold uppercase text-muted">Unidad</span>
+              <span className="text-xs font-semibold uppercase text-muted">
+                Unidad
+              </span>
               <select
                 value={draft.yieldUnit}
                 onChange={(event) =>
@@ -377,15 +391,6 @@ export function SubRecipesListView() {
                 <option value="unit">unit</option>
               </select>
             </label>
-          </div>
-          <div className="pt-2" />
-          <div className="text-sm text-muted">
-            <div className="text-xs font-semibold uppercase text-muted">
-              Valor unitario
-            </div>
-            <div className="font-semibold text-text">
-              {unitCost !== null ? formatCurrency(unitCost) : "-"}
-            </div>
           </div>
 
           <div className="rounded-2xl border border-border">
@@ -470,7 +475,9 @@ export function SubRecipesListView() {
           <div className="rounded-2xl border border-border bg-surface-alt/60 px-4 py-3 text-sm text-muted">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span>Total materia prima</span>
-              <span className="font-semibold text-text">{formatCurrency(totalCost)}</span>
+              <span className="font-semibold text-text">
+                {formatCurrency(totalCost)}
+              </span>
             </div>
           </div>
 
@@ -487,7 +494,7 @@ export function SubRecipesListView() {
 
 function calculateSubRecipeCostPreview(
   subRecipe: SubRecipe,
-  ingredientsById: Map<string, { pricePerBaseUnit: number }>
+  ingredientsById: Map<string, { pricePerBaseUnit: number }>,
 ): number {
   return subRecipe.items.reduce((sum, item) => {
     const ingredient = ingredientsById.get(item.ingredientId);
@@ -498,7 +505,7 @@ function calculateSubRecipeCostPreview(
 
 function calculateSubRecipeUnitCost(
   subRecipe: SubRecipe,
-  ingredientsById: Map<string, { pricePerBaseUnit: number }>
+  ingredientsById: Map<string, { pricePerBaseUnit: number }>,
 ): number | null {
   if (!Number.isFinite(subRecipe.yieldQty) || subRecipe.yieldQty <= 0) {
     return null;
