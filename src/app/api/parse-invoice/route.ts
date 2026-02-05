@@ -32,8 +32,8 @@ async function readInputFromRequest(
 
     const maxSize = 1200;
     const shouldResize =
-      (originalWidth && originalWidth > maxSize) ||
-      (originalHeight && originalHeight > maxSize);
+      (!!originalWidth && originalWidth > maxSize) ||
+      (!!originalHeight && originalHeight > maxSize);
 
     const processedBuffer = await (shouldResize
       ? image
