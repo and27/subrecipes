@@ -380,10 +380,12 @@ export function SubRecipesListView() {
           </div>
           <div className="pt-2" />
           <div className="text-sm text-muted">
-            <span>Valor unitario</span>
-            <span className="ml-2 font-semibold text-text">
+            <div className="text-xs font-semibold uppercase text-muted">
+              Valor unitario
+            </div>
+            <div className="font-semibold text-text">
               {unitCost !== null ? formatCurrency(unitCost) : "-"}
-            </span>
+            </div>
           </div>
 
           <div className="rounded-2xl border border-border">
@@ -453,10 +455,10 @@ export function SubRecipesListView() {
                       className="w-full rounded-xl border border-border bg-surface-alt px-2 py-2 text-sm text-text"
                       placeholder="Cantidad"
                     />
-                    <div className="flex items-center text-sm text-muted">
+                    <div className="flex items-center justify-end text-sm text-muted tabular-nums">
                       {ingredient?.baseUnit ?? "-"}
                     </div>
-                    <div className="flex items-center text-sm text-muted">
+                    <div className="flex items-center justify-end text-sm text-muted tabular-nums">
                       {total !== null ? formatCurrency(total) : "-"}
                     </div>
                   </div>
